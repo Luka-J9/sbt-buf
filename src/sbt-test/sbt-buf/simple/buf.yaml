@@ -1,0 +1,11 @@
+version: v1
+deps:
+  - buf.build/scalapb/scalapb-validate:v0.3.4
+  - buf.build/envoyproxy/protoc-gen-validate:728c81676f9e54d3571603b90b34c0e6419770c6
+  - buf.build/scalapb/scalapb:v0.11.11
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT

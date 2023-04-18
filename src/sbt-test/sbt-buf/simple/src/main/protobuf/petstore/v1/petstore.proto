@@ -1,0 +1,62 @@
+syntax = "proto3";
+package petstore.v1;
+
+option java_package = "com.example.petstore.generated";
+
+import "validate/validate.proto";
+
+// Uncomment this block out after you have installed validate protoc plugin to do this part of the demo
+import "scalapb/scalapb.proto";
+import "scalapb/validate/validate.proto"; //TODO: Current publish puts it in an extra dir, should be scalapb/validate.proto
+
+option (scalapb.options) = {
+  scope: FILE
+  [scalapb.validate.file] {
+      validate_at_construction: true
+      insert_validator_instance: true
+      skip: false
+  }
+};
+
+message Pet {
+  int32 id = 1;
+  string name = 2;
+}
+
+message User {
+  int32 id = 1;
+  string username = 2;
+  string email = 3;
+  string phone = 4;
+}
+
+message PetByIdRequest {
+  int32 id = 1;
+}
+
+message UserByNameRequest {
+  string username = 1 [(validate.rules).string.min_len = 3];
+}
+
+message PetByIdResponse {
+  Pet pet = 1 [(validate.rules).message.required = true];
+}
+
+message UserByNameResponse {
+  User user = 1;
+}
+
+message ListUsersRequest {
+  string msg = 1;
+}
+message StoreUsersResponse {
+  string msg = 1;
+}
+
+service PetStoreService {
+  rpc PetById(PetByIdRequest) returns (PetByIdResponse);
+  rpc UserByName(UserByNameRequest) returns (UserByNameResponse);
+  rpc ListUsers(ListUsersRequest) returns (stream User);
+  rpc StoreUsers(stream User) returns (StoreUsersResponse);
+  rpc BulkUsers(stream User) returns (stream User);
+}
