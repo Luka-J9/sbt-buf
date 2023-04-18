@@ -24,11 +24,11 @@ object BufPlugin extends AutoPlugin {
         "If the buf files define a local plugin these are the paths to download the artifacts"
     )
 
-    lazy val downloadBuf = taskKey[Unit]("Download Buf")
+    lazy val bufDownload = taskKey[Unit]("Download Buf")
 
-    lazy val downloadPlugins = taskKey[Unit]("Download Plugins")
+    lazy val bufDownloadGen = taskKey[Unit]("Download Plugins")
 
-    lazy val clearBuf = taskKey[Unit]("Clears all sbt-buf files from target cache")
+    lazy val bufClear = taskKey[Unit]("Clears all sbt-buf files from target cache")
 
     lazy val buf = inputKey[Unit]("passes through buf commands")
 
@@ -106,9 +106,9 @@ object BufPlugin extends AutoPlugin {
   override def projectSettings =
     Seq(
       bufVersion := None,
-      downloadBuf := downloadBufSetting.value,
-      downloadPlugins := downloadProtocPlugins.value,
-      buf := (runBuf.dependsOn(downloadPlugins.dependsOn(downloadBufSetting))).evaluated,
+      bufDownload := downloadBufSetting.value,
+      bufDownloadGen := downloadProtocPlugins.value,
+      buf := (runBuf.dependsOn(bufDownloadGen.dependsOn(downloadBufSetting))).evaluated,
     )
 
   private def makeExecutable(file: File): Unit = {

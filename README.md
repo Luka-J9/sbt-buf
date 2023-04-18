@@ -1,6 +1,11 @@
 # sbt-buf
 
-An sbt AutoPlugin
+An sbt AutoPlugin that lightly wraps the Buf cli tool.
+
+Main features include:
+- Downloading the Buf Cli Tool
+- Running the Buf Cli Tool in the command line
+- Downloading Protoc plugins such that they are able to be used by Buf
 
 ## Usage
 
