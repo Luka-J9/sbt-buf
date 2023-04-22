@@ -6,7 +6,7 @@ import sys.process._
 import java.io.File
 import java.nio.file.Files
 import complete.DefaultParsers._
-import _root_.com.github.lukaj9.sbt.platform.Windows
+import com.github.lukaj9.sbt.platform.Windows
 import java.nio.file.Paths
 import com.github.lukaj9.sbt.platform.Linux
 import com.github.lukaj9.sbt.platform.UnknownOs
@@ -17,23 +17,27 @@ object BufPlugin extends AutoPlugin {
 
   object autoImport {
 
-    case class ProtocPlugin(fn: DetectedSystem => Option[String], fileNameOverride: Option[String] = None)
+    case class ProtocPlugin(fn: DetectedSystem => Option[java.net.URI], fileNameOverride: Option[String] = None)
     
     lazy val bufVersion = settingKey[Option[String]](
         s"Version of buf to install, if not set defaults to latest"
+    )
+
+    lazy val bufOverride = settingKey[Option[java.net.URI]](
+      "Override where buf gets downloaded from"
     )
 
     lazy val protocPlugins = settingKey[Seq[ProtocPlugin]](
         "If the buf files define a local plugin these are the paths to download the artifacts"
     )
 
-    lazy val bufDownload = taskKey[Unit]("Download Buf")
+    lazy val bufDownload = taskKey[Unit]("Download Buf Cli Tool")
 
-    lazy val bufDownloadGen = taskKey[Unit]("Download Plugins")
+    lazy val bufDownloadGen = taskKey[Unit]("Download Protoc Plugins Used for Gen")
 
     lazy val bufClear = taskKey[Unit]("Clears all sbt-buf files from target cache")
 
-    lazy val buf = inputKey[Unit]("passes through buf commands")
+    lazy val buf = inputKey[Unit]("Run Buf! This process passes commands through to the downloaded CLI tool")
   }
 
   import autoImport._
@@ -54,7 +58,7 @@ object BufPlugin extends AutoPlugin {
       val detectedSystem = DetectedSystem.detect
 
       if(!outputFile.exists()){
-        val buf = GithubRetreaver.downloadBuf(detectedSystem, bufVersion.value, outputFile.toPath())(percent => logger.info(s"Downloading Buf Progress: $percent%"))
+        val buf = GithubRetreaver.downloadBuf(detectedSystem, bufVersion.value, outputFile.toPath())
         makeExecutable(buf)
       }
     }
@@ -73,14 +77,12 @@ object BufPlugin extends AutoPlugin {
       protocPlugins.value.flatMap{
         plugin => (plugin.fn(detectedSystem).map((_, plugin.fileNameOverride)))
       }.foreach{
-        case (str, fileNameOpt) => 
-
-          val uri = new URI(str)
+        case (uri, fileNameOpt) => 
           val path = uri.getPath();
           val fileName = fileNameOpt.getOrElse(path.substring(path.lastIndexOf('/') + 1));
           val outputFile = managedDir / fileName
           if(!outputFile.exists()) {
-            val plugin = GithubRetreaver.downloadPlugin(uri.toURL(), outputFile.toPath())(percent => logger.info(s"Downloading Plugin `${fileName}`: $percent%"))
+            val plugin = GithubRetreaver.downloadPlugin(uri, outputFile.toPath())
             makeExecutable(plugin)
           }
       }

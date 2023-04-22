@@ -24,3 +24,6 @@ project/plugins/project/
 .scala_dependencies
 .worksheet
 .idea
+
+
+src/sbt-test/sbt-buf/simple/src/main/scala
