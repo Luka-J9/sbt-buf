@@ -5,6 +5,9 @@ enablePlugins(BufPlugin)
 
 import BufPlugin.autoImport._
 
+
+
+lazy val v = ("com.thesamet.scalapb" % "protoc-gen-scalapb-validate" % "0.3.4")
 protocPlugins := Seq(
     ProtocPlugin(plugin => 
         Some(

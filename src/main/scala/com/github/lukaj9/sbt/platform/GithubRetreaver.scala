@@ -7,8 +7,9 @@ import java.io.FileOutputStream
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.io.File
+import sbt.internal.util.ManagedLogger
 
-object GithubRetreaver extends App {
+object GithubRetreaver {
     private lazy val username = "bufbuild"
     private lazy val repo = "buf"
     private lazy val baseUrl = s"https://api.github.com/repos/$username/$repo/releases"
@@ -27,16 +28,20 @@ object GithubRetreaver extends App {
     }
 
 
-    def downloadVersion(version: String, system: SystemInformation) = {
-        new URL(s"$downloadUrl/$version/${system.toPluginName}")
+    def downloadVersion(version: String, system: DetectedSystem) = {
+        system.toBufPlugin match {
+            case None => throw new IllegalStateException(s"Detected system was ${system.os} ${system.arch}, which is not supported by Buf at this time - if you think this is wrong open a PR")
+            case Some(value) => new URL(s"$downloadUrl/$version/buf-$value")
+        }
+        
     }
 
-    def downloadBuf(system: SystemInformation, version: Option[String], to: java.nio.file.Path)(report: Int => Unit) = {
+    def downloadBuf(system: DetectedSystem, version: Option[String], to: java.nio.file.Path)(report: Int => Unit)(implicit logger: ManagedLogger) = {
         val selectedVersion = version.getOrElse(latestVersion())
 
         val file = to.toFile()
         val downloadUrl = downloadVersion(selectedVersion, system)
-        println(s"Downloading Buf Version `$selectedVersion`")
+        logger.info(s"Downloading Buf Version `$selectedVersion`")
         downloadFile(downloadUrl, file)(report)
     }
 
@@ -71,9 +76,4 @@ object GithubRetreaver extends App {
             in.close()
         }
     }
-
-
-    downloadBuf(SystemInformation.extract(), None, Paths.get("/home/luka/buf"))(
-        x => println(s"Download at: $x%")
-    )
 }
