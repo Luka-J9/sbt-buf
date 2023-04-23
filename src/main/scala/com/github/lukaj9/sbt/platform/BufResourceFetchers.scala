@@ -10,27 +10,32 @@ import java.io.File
 import sbt.internal.util.ManagedLogger
 import java.net.URI
 import java.nio.file.{Files, Paths}
+import java.io.InputStream
 
-object GithubRetreaver {
-    private lazy val username = "bufbuild"
-    private lazy val repo = "buf"
-    private lazy val baseUrl = s"https://api.github.com/repos/$username/$repo/releases"
-    private lazy val downloadUrl = s"https://github.com/$username/$repo/releases/download"
+object BufResourceFetchers {
+    lazy val username = "bufbuild"
+    lazy val repo = "buf"
+    lazy val baseUrl = s"https://api.github.com/repos/$username/$repo/releases"
+    lazy val downloadUrl = s"https://github.com/$username/$repo/releases/download"
 
     def latestVersion(): String = {
         val apiUrl = s"$baseUrl/latest"
         val url = new URL(apiUrl)
-
-        // Open a connection to the API endpoint and read the response
         val inputStream = url.openConnection().getInputStream()
-        val response = Source.fromInputStream(inputStream).mkString
+        extractVersion(inputStream)
+    }
 
-        // Parse the response to get the version number of the latest release
-        response.split("\"tag_name\":")(1).split(",")(0).replaceAll("\"", "")
+    protected[platform] def extractVersion(inputStream: InputStream) = {
+        try{
+            val response = Source.fromInputStream(inputStream).mkString
+            response.split("\"tag_name\":")(1).split(",")(0).replaceAll("\"", "")
+        } finally {
+            inputStream.close()
+        }
     }
 
 
-    def downloadVersion(version: String, system: DetectedSystem) = {
+    def downloadVersion(version: String, system: DetectedSystem): URI = {
         system.toBufPlugin match {
             case None => throw new IllegalStateException(s"Detected system was ${system.os} ${system.arch}, which is not supported by Buf at this time - Please Report and issue if you think this is wrong")
             case Some(value) => new URL(s"$downloadUrl/$version/buf-$value").toURI()
@@ -40,26 +45,25 @@ object GithubRetreaver {
 
     def downloadBuf(system: DetectedSystem, version: Option[String], to: java.nio.file.Path)(implicit logger: ManagedLogger): File = {
         val selectedVersion = version.getOrElse(latestVersion())
-
-        val file = to.toFile()
         val downloadUrl = downloadVersion(selectedVersion, system)
         logger.info(s"Downloading Buf Version `$selectedVersion`")
-        downloadFile(downloadUrl, file)
+        downloadFile(downloadUrl, to)
     }
 
     def downloadPlugin(pluginURL: URI, to: java.nio.file.Path)(implicit logger: ManagedLogger): File = {
-        downloadFile(pluginURL, to.toFile())
+        downloadFile(pluginURL, to)
         to.toFile()
     }
 
-    private def downloadFile(uri: URI, to: File)(implicit logger: ManagedLogger): File= {
+    def downloadFile(uri: URI, to: java.nio.file.Path)(implicit logger: ManagedLogger): File = {
 
+        val file = to.toFile
         uri.getScheme match {
-            case "file" => Files.copy(Paths.get(uri), to.toPath()).toFile()
+            case "file" => Files.copy(Paths.get(uri), to).toFile()
             case _ =>
                 val connection = new URL(uri.toString()).openConnection()
                 val contentLength = connection.getContentLength()
-                lazy val out = new FileOutputStream(to)
+                lazy val out = new FileOutputStream(file)
                 lazy val in = connection.getInputStream
                 try {
                     val buffer = Array.ofDim[Byte](1024)
@@ -77,7 +81,7 @@ object GithubRetreaver {
                             logger.info(s"Downloading `${uri.toString()}` - ${percentage}%")
                         }
                     }
-                    to
+                    file
                 } finally {
                     out.close()
                     in.close()

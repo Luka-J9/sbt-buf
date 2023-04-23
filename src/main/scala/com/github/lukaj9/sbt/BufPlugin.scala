@@ -1,7 +1,7 @@
 import sbt.AutoPlugin
 import sbt._
 import Keys._
-import com.github.lukaj9.sbt.platform.GithubRetreaver
+import com.github.lukaj9.sbt.platform.BufResourceFetchers
 import sys.process._
 import java.io.File
 import java.nio.file.Files
@@ -38,6 +38,8 @@ object BufPlugin extends AutoPlugin {
     lazy val bufClear = taskKey[Unit]("Clears all sbt-buf files from target cache")
 
     lazy val buf = inputKey[Unit]("Run Buf! This process passes commands through to the downloaded CLI tool")
+
+    
   }
 
   import autoImport._
@@ -58,8 +60,14 @@ object BufPlugin extends AutoPlugin {
       val detectedSystem = DetectedSystem.detect
 
       if(!outputFile.exists()){
-        val buf = GithubRetreaver.downloadBuf(detectedSystem, bufVersion.value, outputFile.toPath())
-        makeExecutable(buf)
+        val outputPath = outputFile.toPath()
+        val buf = bufOverride.value match {
+          case None => BufResourceFetchers.downloadBuf(detectedSystem, bufVersion.value, outputPath)
+          case Some(value) =>
+            logger.info(s"Buf download overriden - pulling from ${value.toString}")
+            BufResourceFetchers.downloadFile(value, outputPath)
+        }
+        buf.setExecutable(true)
       }
     }
 
@@ -82,8 +90,8 @@ object BufPlugin extends AutoPlugin {
           val fileName = fileNameOpt.getOrElse(path.substring(path.lastIndexOf('/') + 1));
           val outputFile = managedDir / fileName
           if(!outputFile.exists()) {
-            val plugin = GithubRetreaver.downloadPlugin(uri, outputFile.toPath())
-            makeExecutable(plugin)
+            val plugin = BufResourceFetchers.downloadPlugin(uri, outputFile.toPath())
+            plugin.setExecutable(true)
           }
       }
 
@@ -118,12 +126,9 @@ object BufPlugin extends AutoPlugin {
   override def projectSettings =
     Seq(
       bufVersion := None,
+      bufOverride := None,
       bufDownload := downloadBufSetting.value,
       bufDownloadGen := downloadProtocPlugins.value,
       buf := (runBuf.dependsOn(bufDownloadGen.dependsOn(downloadBufSetting))).evaluated,
     )
-
-  private def makeExecutable(file: File): Unit = {
-    file.setExecutable(true)
-  }
 }
