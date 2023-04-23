@@ -47,11 +47,14 @@ object BufPlugin extends AutoPlugin {
 
   import autoImport._
 
+  private lazy val baseDir = Def.setting[BaseDirectory] {
+    BaseDirectory(((Compile / target).value / "sbt-buf").toPath())
+  }
+
   private lazy val bufActions = Def.task[BufActions]{
-    val  baseDir = BaseDirectory(((Compile / target).value / "sbt-buf").toPath())
     implicit val logger = streams.value.log
     BufActions(
-      baseDir,
+      baseDir.value,
       protocPlugins.value.nonEmpty
     )
   }
