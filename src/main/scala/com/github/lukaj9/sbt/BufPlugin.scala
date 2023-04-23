@@ -12,12 +12,15 @@ import com.github.lukaj9.sbt.platform.Linux
 import com.github.lukaj9.sbt.platform.UnknownOs
 import protocbridge.SystemDetector
 import com.github.lukaj9.sbt.platform.DetectedSystem
+import com.github.lukaj9.sbt.actions.BufActions
+import com.github.lukaj9.sbt.actions.DownloadActions
+import com.github.lukaj9.sbt.actions.BaseDirectory
+import com.github.lukaj9.sbt.platform.ProtocPlugin
+
 
 object BufPlugin extends AutoPlugin {
 
   object autoImport {
-
-    case class ProtocPlugin(fn: DetectedSystem => Option[java.net.URI], fileNameOverride: Option[String] = None)
     
     lazy val bufVersion = settingKey[Option[String]](
         s"Version of buf to install, if not set defaults to latest"
@@ -44,83 +47,40 @@ object BufPlugin extends AutoPlugin {
 
   import autoImport._
 
+  private lazy val baseDir = Def.setting[BaseDirectory] {
+    BaseDirectory(((Compile / target).value / "sbt-buf").toPath())
+  }
+
+  private lazy val bufActions = Def.task[BufActions]{
+    implicit val logger = streams.value.log
+    BufActions(
+      baseDir.value,
+      protocPlugins.value.nonEmpty
+    )
+  }
+
+  private lazy val downloadActions = Def.task[DownloadActions]{
+    implicit val logger = streams.value.log
+    DownloadActions(
+      baseDir.value,
+      system = DetectedSystem.detect
+    )
+  }
+
   lazy val downloadBufSetting =
     Def.task {
-      lazy implicit val logger = streams.value.log
-      val targetDir = (Compile / target).value
-
-      val managedDir = targetDir/ "sbt-buf"
-      
-      if(!Files.exists(managedDir.toPath()) ) {
-        Files.createDirectories(managedDir.toPath())
-      }
-
-      val outputFile = managedDir/ "buf"
-
-      val detectedSystem = DetectedSystem.detect
-
-      if(!outputFile.exists()){
-        val outputPath = outputFile.toPath()
-        val buf = bufOverride.value match {
-          case None => BufResourceFetchers.downloadBuf(detectedSystem, bufVersion.value, outputPath)
-          case Some(value) =>
-            logger.info(s"Buf download overriden - pulling from ${value.toString}")
-            BufResourceFetchers.downloadFile(value, outputPath)
-        }
-        buf.setExecutable(true)
-      }
+      downloadActions.value.downloadBuf(bufVersion.value, bufOverride.value)
     }
 
   lazy val downloadProtocPlugins = 
     Def.task {
-      lazy implicit val logger = streams.value.log
-      val targetDir = (Compile /target).value
-      val managedDir = targetDir / "sbt-buf" / "protoc"
-
-      val detectedSystem = DetectedSystem.detect
-      if(!Files.exists(managedDir.toPath())) {
-        Files.createDirectories(managedDir.toPath())
-      }
-
-      protocPlugins.value.flatMap{
-        plugin => (plugin.fn(detectedSystem).map((_, plugin.fileNameOverride)))
-      }.foreach{
-        case (uri, fileNameOpt) => 
-          val path = uri.getPath();
-          val fileName = fileNameOpt.getOrElse(path.substring(path.lastIndexOf('/') + 1));
-          val outputFile = managedDir / fileName
-          if(!outputFile.exists()) {
-            val plugin = BufResourceFetchers.downloadPlugin(uri, outputFile.toPath())
-            plugin.setExecutable(true)
-          }
-      }
-
+      downloadActions.value.downloadProtocPlugins(protocPlugins.value)
     }
 
   lazy val runBuf = 
     Def.inputTask {
-      lazy implicit val logger = streams.value.log
-      val targetDir = (Compile / target).value
-      val bufEx = targetDir/ "sbt-buf" / "buf"
       val userInput: Seq[String] = Def.spaceDelimited("<arg>").parsed
-
-
-      val env = if(protocPlugins.value.nonEmpty) {
-        val detectedSystem = DetectedSystem.detect
-        val envVar = detectedSystem.os match {
-          case Windows => "Path"
-          case _ => "PATH"
-        }
-        sys.env + (envVar -> (sys.env.getOrElse(envVar, "") + File.pathSeparator + (targetDir / "sbt-buf" / "protoc").getAbsolutePath))
-      } else {
-        sys.env
-      }
-
-      val execute = (List(bufEx.absolutePath) ++ userInput)
-
-
-      val processBuilder = Process(execute, None, env.toSeq: _*)
-      processBuilder.run()
+      bufActions.value.executeBufCommand(userInput)
     }
 
   override def projectSettings =
@@ -129,6 +89,6 @@ object BufPlugin extends AutoPlugin {
       bufOverride := None,
       bufDownload := downloadBufSetting.value,
       bufDownloadGen := downloadProtocPlugins.value,
-      buf := (runBuf.dependsOn(bufDownloadGen.dependsOn(downloadBufSetting))).evaluated,
+      buf := runBuf.dependsOn(bufDownloadGen).dependsOn(downloadBufSetting).evaluated,
     )
 }

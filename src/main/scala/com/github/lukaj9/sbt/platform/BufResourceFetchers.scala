@@ -11,6 +11,7 @@ import sbt.internal.util.ManagedLogger
 import java.net.URI
 import java.nio.file.{Files, Paths}
 import java.io.InputStream
+import sbt.util.Logger
 
 object BufResourceFetchers {
     lazy val username = "bufbuild"
@@ -37,25 +38,25 @@ object BufResourceFetchers {
 
     def downloadVersion(version: String, system: DetectedSystem): URI = {
         system.toBufPlugin match {
-            case None => throw new IllegalStateException(s"Detected system was ${system.os} ${system.arch}, which is not supported by Buf at this time - Please Report and issue if you think this is wrong")
+            case None => throw new IllegalArgumentException(s"Detected system was ${system.os} ${system.arch}, which is not supported by Buf at this time - Please Report and issue if you think this is wrong")
             case Some(value) => new URL(s"$downloadUrl/$version/buf-$value").toURI()
         }
         
     }
 
-    def downloadBuf(system: DetectedSystem, version: Option[String], to: java.nio.file.Path)(implicit logger: ManagedLogger): File = {
+    def downloadBuf(system: DetectedSystem, version: Option[String], to: java.nio.file.Path)(implicit logger: Logger): File = {
         val selectedVersion = version.getOrElse(latestVersion())
         val downloadUrl = downloadVersion(selectedVersion, system)
         logger.info(s"Downloading Buf Version `$selectedVersion`")
         downloadFile(downloadUrl, to)
     }
 
-    def downloadPlugin(pluginURL: URI, to: java.nio.file.Path)(implicit logger: ManagedLogger): File = {
+    def downloadPlugin(pluginURL: URI, to: java.nio.file.Path)(implicit logger: Logger): File = {
         downloadFile(pluginURL, to)
         to.toFile()
     }
 
-    def downloadFile(uri: URI, to: java.nio.file.Path)(implicit logger: ManagedLogger): File = {
+    def downloadFile(uri: URI, to: java.nio.file.Path)(implicit logger: Logger): File = {
 
         val file = to.toFile
         uri.getScheme match {
