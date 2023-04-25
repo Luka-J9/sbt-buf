@@ -25,7 +25,7 @@ inThisBuild(List(
   )
 ))
 
-initialCommands in console := """import com.github.lukaj9.sbt._"""
+console / initialCommands := """import com.github.lukaj9.sbt._"""
 
 enablePlugins(ScriptedPlugin)
 // set up 'scripted; sbt plugin for testing sbt plugins
@@ -50,3 +50,4 @@ ThisBuild / githubWorkflowPublish := Seq(
 
 ThisBuild / githubWorkflowOSes := Seq("ubuntu-latest", "macos-latest", "windows-latest")
 
+Test / parallelExecution := false

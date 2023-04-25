@@ -15,7 +15,7 @@ trait DownloadActions {
         overrideLocation: Option[URI],
   ): Unit
 
-  def downloadProtocPlugins(protocPlugins: Seq[ProtocPlugin]): Unit
+  def downloadProtocPlugins(protocPlugins: Seq[ProtocPlugin]): Unit 
 
 }
 
@@ -57,13 +57,10 @@ object DownloadActions {
             Files.createDirectories(protocManaged)
         }
 
-        protocPlugins.flatMap{
-            plugin => (plugin.fn(system).map((_, plugin.fileNameOverride)))
-        }.foreach{
-            case (uri, fileNameOpt) => 
+        protocPlugins.foreach{
+            case ProtocPlugin(name, uri) => 
             val path = uri.getPath();
-            val fileName = fileNameOpt.getOrElse(path.substring(path.lastIndexOf('/') + 1));
-            val outputFile = protocManaged.resolve(fileName).toFile
+            val outputFile = protocManaged.resolve(name).toFile
             if(!outputFile.exists()) {
                 val plugin = BufResourceFetchers.downloadPlugin(uri, outputFile.toPath())
                 plugin.setExecutable(true)

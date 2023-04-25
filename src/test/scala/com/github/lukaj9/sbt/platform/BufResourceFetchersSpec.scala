@@ -10,7 +10,7 @@ import sbt.internal.util.ConsoleLogger
 import java.net.URI
 
 
-class BufResourceFetchersSpec extends FunSuite{
+class BufResourceFetchersSpec extends FunSuite {
 
 
   implicit val logger = ConsoleLogger()
@@ -76,6 +76,8 @@ class BufResourceFetchersSpec extends FunSuite{
     assertEquals(download.getName(), "plugin")
     download.delete()
   }
+
+
 }
 
 

@@ -51,8 +51,8 @@ object BufResourceFetchers {
         downloadFile(downloadUrl, to)
     }
 
-    def downloadPlugin(pluginURL: URI, to: java.nio.file.Path)(implicit logger: Logger): File = {
-        downloadFile(pluginURL, to)
+    def downloadPlugin(pluginURI: URI, to: java.nio.file.Path)(implicit logger: Logger): File = {
+        downloadFile(pluginURI, to)
         to.toFile()
     }
 

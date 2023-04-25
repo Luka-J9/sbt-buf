@@ -31,12 +31,6 @@ object SystemDetector {
       case _                    => UnknownArch
     }
 
-  def detectedClassifier(): String = {
-    val osName = sys.props.getOrElse("os.name", "")
-    val osArch = sys.props.getOrElse("os.arch", "")
-    normalizedOs(osName) + "-" + normalizedArch(osArch)
-  }
-
   def normalize(s: String) =
     s.toLowerCase(ju.Locale.US).replaceAll("[^a-z0-9]+", "")
 }
