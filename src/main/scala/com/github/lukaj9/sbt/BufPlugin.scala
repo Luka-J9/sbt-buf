@@ -42,6 +42,8 @@ object BufPlugin extends AutoPlugin {
 
     lazy val buf = inputKey[Unit]("Run Buf! This process passes commands through to the downloaded CLI tool")
 
+    lazy val detectedSystem = settingKey[DetectedSystem]("Detected system for which Buf and associated plugins will run on")
+
     
   }
 
@@ -63,7 +65,7 @@ object BufPlugin extends AutoPlugin {
     implicit val logger = streams.value.log
     DownloadActions(
       baseDir.value,
-      system = DetectedSystem.detect
+      system = detectedSystem.value
     )
   }
 
@@ -90,5 +92,6 @@ object BufPlugin extends AutoPlugin {
       bufDownload := downloadBufSetting.value,
       bufDownloadGen := downloadProtocPlugins.value,
       buf := runBuf.dependsOn(bufDownloadGen).dependsOn(downloadBufSetting).evaluated,
+      detectedSystem := DetectedSystem.detect,
     )
 }
