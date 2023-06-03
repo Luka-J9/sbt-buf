@@ -6,7 +6,7 @@ version := "0.1-SNAPSHOT"
 sbtPlugin := true
 
 libraryDependencies ++= Seq(
-  "com.thesamet.scalapb" %% "protoc-bridge" % "0.9.6",
+  "io.circe" %% "circe-yaml" % "0.14.2",
   "org.scalameta" %% "munit" % "0.7.29" % Test,
   "org.scalameta" %% "munit-scalacheck" % "0.7.29" % Test
 )

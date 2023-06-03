@@ -10,7 +10,6 @@ import com.github.lukaj9.sbt.platform.Windows
 import java.nio.file.Paths
 import com.github.lukaj9.sbt.platform.Linux
 import com.github.lukaj9.sbt.platform.UnknownOs
-import protocbridge.SystemDetector
 import com.github.lukaj9.sbt.platform.DetectedSystem
 import com.github.lukaj9.sbt.actions.BufActions
 import com.github.lukaj9.sbt.actions.DownloadActions
