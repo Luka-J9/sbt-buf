@@ -15,6 +15,8 @@ import com.github.lukaj9.sbt.actions.BufActions
 import com.github.lukaj9.sbt.actions.DownloadActions
 import com.github.lukaj9.sbt.actions.BaseDirectory
 import com.github.lukaj9.sbt.platform.ProtocPlugin
+import com.github.lukaj9.sbt.platform.FileHasher
+import com.github.lukaj9.sbt.models._
 
 
 object BufPlugin extends AutoPlugin {
@@ -39,9 +41,13 @@ object BufPlugin extends AutoPlugin {
 
     lazy val bufClear = taskKey[Unit]("Clears all sbt-buf files from target cache")
 
+    lazy val bufGenerate = inputKey[Unit]("Generates code according to the buf.gen.yaml file")
+
     lazy val buf = inputKey[Unit]("Run Buf! This process passes commands through to the downloaded CLI tool")
 
     lazy val detectedSystem = settingKey[DetectedSystem]("Detected system for which Buf and associated plugins will run on")
+
+    lazy val bufPath = settingKey[java.nio.file.Path]("The base path containing the buf or buf workspace file")
 
     
   }
@@ -56,6 +62,7 @@ object BufPlugin extends AutoPlugin {
     implicit val logger = streams.value.log
     BufActions(
       baseDir.value,
+      FileHasher(),
       protocPlugins.value.nonEmpty
     )
   }
@@ -84,6 +91,11 @@ object BufPlugin extends AutoPlugin {
       bufActions.value.executeBufCommand(userInput)
     }
 
+  lazy val bufGen = 
+    Def.inputTask {
+      bufActions.value.generate(bufPath.value, Left(Buf(Version("v1"), None, List.empty, None, None, None)))
+    }
+
   override def projectSettings =
     Seq(
       bufVersion := None,
@@ -92,5 +104,7 @@ object BufPlugin extends AutoPlugin {
       bufDownloadGen := downloadProtocPlugins.value,
       buf := runBuf.dependsOn(bufDownloadGen).dependsOn(downloadBufSetting).evaluated,
       detectedSystem := DetectedSystem.detect,
+      bufPath := baseDirectory.value.toPath(),
+      bufGenerate := bufGen.dependsOn(bufDownloadGen).dependsOn(downloadBufSetting).evaluated,
     )
 }

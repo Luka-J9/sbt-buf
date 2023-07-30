@@ -12,12 +12,12 @@ lazy val v = ("com.thesamet.scalapb" % "protoc-gen-scalapb-validate" % "0.3.4")
 lazy val validatePlugin = "https://repo1.maven.org/maven2/com/thesamet/scalapb/protoc-gen-scalapb-validate/0.3.4/protoc-gen-scalapb-validate-0.3.4"
 
 protocPlugins := Seq(
-    ProtocPlugin(system => 
-        system.os match {
-            case Windows => Some(new URI(s"$validatePlugin-windows.bat"))
-            case Linux | Osx => Some(new URI(s"$validatePlugin-unix.sh"))
-            case _ => None
-        },
-        Some("protoc-gen-scalapb-validate")
+    ProtocPlugin(
+        "protoc-gen-scalapb-validate",
+        detectedSystem.value.os match {
+            case Windows => new URI(s"$validatePlugin-windows.bat")
+            case Linux | Osx => new URI(s"$validatePlugin-unix.sh")
+            case e => throw new IllegalArgumentException(s"$e is not a supported os for this plugin")
+        }
     )
 )

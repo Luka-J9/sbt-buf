@@ -13,6 +13,10 @@ final case class Buf(
     lint: Option[Lint],
 )
 
+object Buf {
+    def fromBytes(bytes: Array[Byte]): Buf = ???
+}
+
 case class Lint(
     use: List[LintCategory], 
     except: List[LintCategory], 
@@ -163,7 +167,7 @@ object BreakingCategory {
 }
 
 case class Build(excludes: List[Excludes])
-case class Excludes(values: List[String])
+case class Excludes(value: String)
 
 case class Version(value: String) extends AnyVal
 case class Name(value: String) extends AnyVal
