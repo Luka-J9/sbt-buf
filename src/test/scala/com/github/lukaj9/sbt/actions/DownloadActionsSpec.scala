@@ -56,7 +56,7 @@ class DownloadActionsSpec extends FunSuite {
       sha256sum(
         bufPath.toFile
       ),
-      "9175bbcae32e45a5e7cda0340d835f918070c8fd03b0e0c3e065c98779195308"
+      "b94a5fa0b0f7b35090c6064125fcd43e95ac8f1da914bbafb8ea311451d2babe"
     )
     bufPath.toFile().delete()
   }
@@ -96,7 +96,7 @@ class DownloadActionsSpec extends FunSuite {
       sha256sum(
         bufPath.toFile
       ),
-      "63d7cdf641a2c21705c065d6c9407225ef846a03be45cdb668ee5eb43990538b"
+      "ed7e79e589b8c1f55ad7eb23478b0e0e32d546d25cfbcc512a4064710e13eef9"
     )
     bufPath.toFile().delete()
   }
@@ -127,7 +127,7 @@ class DownloadActionsSpec extends FunSuite {
   }
 
   test(
-    "DownloadACtions downloadProtocPlugins should download buf from override uri"
+    "DownloadActions downloadProtocPlugins should download buf from override uri"
   ) {
     val bufPath = baseDir.toBufPath
     val overrideUri =
