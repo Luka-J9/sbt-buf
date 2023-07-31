@@ -9,6 +9,7 @@ import com.github.lukaj9.sbt.platform.Windows
 import java.io.File
 import com.github.lukaj9.sbt.models.Buf
 import com.github.lukaj9.sbt.models.BufWorkspace
+import com.github.lukaj9.sbt.models.BufGen
 
 import sys.process.Process
 import com.github.lukaj9.sbt.platform.FileHasher
@@ -59,9 +60,7 @@ object BufActions {
           workspaceDir: Path,
           workspace: Either[Buf, BufWorkspace]
       ): Unit = {
-        logger.info("Gen Start")
         val path = baseDir.value.resolve("buf-gen-hash.txt")
-        logger.info(path.toAbsolutePath().toString())
         lazy val existing =
           new String(Files.readAllBytes(path), StandardCharsets.UTF_8)
         lazy val hash = generateHash(workspaceDir, workspace)
@@ -69,7 +68,7 @@ object BufActions {
         if (
           Files.exists(path) && Files.isRegularFile(path) && existing == hash
         ) {
-          logger.info("We skipping dis shiz")
+          logger.info("Proto files and generation hashes match, skipping generation")
           Unit
         } else {
           logger.info("Generating....")
@@ -101,9 +100,9 @@ object BufActions {
             val protofiles: Seq[File] = fileHasher.findProtoFiles(
               workspaceDir.normalize().toAbsolutePath().toString()
             )
-            logger.info("Files")
-            logger.info(workspaceDir.toAbsolutePath().toString())
-            logger.info(protofiles.map(_.getPath()).mkString)
+            logger.debug(s"Search Directory: ${workspaceDir.toAbsolutePath().toString()}")
+            logger.debug("Proto Files Detected")
+            protofiles.map(_.getPath()).foreach(logger.debug(_))
             s"${buf.hashCode().toString()}\n${fileHasher.hashSet(protofiles)}"
           case Right(bufWorkspace) =>
             val alldir = bufWorkspace.directories

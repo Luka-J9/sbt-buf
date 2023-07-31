@@ -73,19 +73,11 @@ object FileHasher {
       val includedFiles = these.filter(_.isFile)
 
       val subDirs = these.filter(_.isDirectory)
-      println(subDirs.map(_.getAbsolutePath()).mkString("\n"))
-      println(excludeDirs.size)
-
       val filteredSubDirs = subDirs.filterNot(dir =>
         excludeDirs.exists(excludePath =>
-          dir.toPath.normalize.startsWith(excludePath.normalize())  
+          dir.toPath.normalize.toAbsolutePath.startsWith(excludePath.normalize().toAbsolutePath())  
         )
       )
-      println("HERE")
-      println(filteredSubDirs.map(_.getAbsolutePath()).mkString(
-        "/n"
-      ))
-
       includedFiles ++ filteredSubDirs.flatMap(
         listFilesRecursively(_, excludeDirs)
       )

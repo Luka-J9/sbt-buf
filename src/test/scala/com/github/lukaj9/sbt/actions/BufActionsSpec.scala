@@ -7,6 +7,9 @@ import sbt.internal.util.ConsoleLogger
 import java.nio.file.Paths
 import com.github.lukaj9.sbt.platform._
 import java.net.URI
+import java.io.File
+import java.io.File
+import java.nio.file.Path
 
 
 class BufActionsSpec extends FunSuite {
@@ -41,16 +44,27 @@ class BufActionsSpec extends FunSuite {
     }
   }
 
+  private val fileHash = new FileHasher{
+
+    override def calculate(file: File): String = "stable"
+
+    override def hashSet(files: Seq[File]): String = "stable-files"
+
+    override def findProtoFiles(directory: String, excludeDirs: List[Path]): Seq[File] = Seq.empty
+
+
+  }
+
   test("BufActions executeBufCommand should execute buf command") {
     val bufPath = baseDir.toBufPath
-    val bufActions = BufActions(baseDir, false)
+    val bufActions = BufActions(baseDir, fileHash, false)
     val exitCode = bufActions.executeBufCommand(Seq("--help"))
     assertEquals(exitCode, 0)
   }
 
     test("BufActions executeBufCommand should execute buf command with plugins") {
         val bufPath = baseDir.toBufPath
-        val bufActions = BufActions(baseDir, true)
+        val bufActions = BufActions(baseDir, fileHash, true)
         val exitCode = bufActions.executeBufCommand(Seq("--help"))
         assertEquals(exitCode, 0)
     }

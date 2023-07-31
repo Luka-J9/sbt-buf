@@ -75,7 +75,7 @@ class DownloadActionsSpec extends FunSuite {
       sha256sum(
         bufPath.toFile
       ),
-      "a4b18f4e44fd918847e310b93ad94ea66913f2040956f856520b92f731e52d7f"
+      "c2a7c0d7d05b4250cdd06d7d4d18cc145572a6d645f16f8920b4c11a6668fdf8"
     )
 
     bufPath.toFile().delete()
@@ -116,7 +116,6 @@ class DownloadActionsSpec extends FunSuite {
       )
     )
     val expectedPath = protocPluginsPath.resolve("validate")
-    println(expectedPath.toFile.getAbsolutePath())
     assert(expectedPath.toFile.exists)
     assertEquals(
       sha256sum(
