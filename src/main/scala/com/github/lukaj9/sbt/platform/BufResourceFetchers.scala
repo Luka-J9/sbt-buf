@@ -22,7 +22,9 @@ object BufResourceFetchers {
     def latestVersion(): String = {
         val apiUrl = s"$baseUrl/latest"
         val url = new URL(apiUrl)
-        val inputStream = url.openConnection().getInputStream()
+        val connection = url.openConnection()
+        connection.addRequestProperty("User-Agent", "request")
+        val inputStream = connection.getInputStream()
         extractVersion(inputStream)
     }
 
