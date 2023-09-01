@@ -10,7 +10,6 @@ import java.io.File
 import java.io.File
 import java.nio.file.Path
 
-
 class BufActionsSpec extends FunSuite {
 
   private implicit val logger = ConsoleLogger()
@@ -43,14 +42,16 @@ class BufActionsSpec extends FunSuite {
     }
   }
 
-  private val fileHash = new FileHasher{
+  private val fileHash = new FileHasher {
 
     override def calculate(file: File): String = "stable"
 
     override def hashSet(files: Seq[File]): String = "stable-files"
 
-    override def findProtoFiles(directory: String, excludeDirs: List[Path]): Seq[File] = Seq.empty
-
+    override def findProtoFiles(
+        directory: String,
+        excludeDirs: List[Path]
+    ): Seq[File] = Seq.empty
 
   }
 
@@ -60,10 +61,10 @@ class BufActionsSpec extends FunSuite {
     assertEquals(exitCode, 0)
   }
 
-    test("BufActions executeBufCommand should execute buf command with plugins") {
-        val bufActions = BufActions(baseDir, fileHash, true)
-        val exitCode = bufActions.executeBufCommand(Seq("--help"))
-        assertEquals(exitCode, 0)
-    }
-  
+  test("BufActions executeBufCommand should execute buf command with plugins") {
+    val bufActions = BufActions(baseDir, fileHash, true)
+    val exitCode = bufActions.executeBufCommand(Seq("--help"))
+    assertEquals(exitCode, 0)
+  }
+
 }
