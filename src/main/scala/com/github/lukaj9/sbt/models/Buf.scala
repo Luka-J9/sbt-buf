@@ -2,7 +2,6 @@ package com.github.lukaj9.sbt.models
 
 import java.nio.file.Path
 import scala.util._
-import javax.xml.stream.events.Comment
 import io.circe._
 import java.io.File
 import io.circe.yaml.parser

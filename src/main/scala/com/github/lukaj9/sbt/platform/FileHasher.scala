@@ -13,7 +13,7 @@ trait FileHasher {
 
   def findProtoFiles(
       directory: String,
-      excludeDirs: List[Path] = Nil
+      excludeDirs: List[Path]
   ): Seq[File]
 }
 

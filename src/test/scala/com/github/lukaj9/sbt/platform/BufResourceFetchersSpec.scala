@@ -1,10 +1,8 @@
 package com.github.lukaj9.sbt.platform
 
 import munit.FunSuite
-import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
-import java.nio.file.Path
 import java.nio.file.Paths
 import sbt.internal.util.ConsoleLogger
 import java.net.URI

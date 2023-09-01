@@ -1,22 +1,13 @@
 import sbt.AutoPlugin
 import sbt._
 import Keys._
-import com.github.lukaj9.sbt.platform.BufResourceFetchers
-import sys.process._
-import java.io.File
-import java.nio.file.Files
-import complete.DefaultParsers._
-import com.github.lukaj9.sbt.platform.Windows
-import java.nio.file.Paths
-import com.github.lukaj9.sbt.platform.Linux
-import com.github.lukaj9.sbt.platform.UnknownOs
 import com.github.lukaj9.sbt.platform.DetectedSystem
 import com.github.lukaj9.sbt.actions.BufActions
 import com.github.lukaj9.sbt.actions.DownloadActions
 import com.github.lukaj9.sbt.actions.BaseDirectory
 import com.github.lukaj9.sbt.platform.ProtocPlugin
 import com.github.lukaj9.sbt.platform.FileHasher
-import com.github.lukaj9.sbt.models._
+import scala.annotation.nowarn
 
 
 object BufPlugin extends AutoPlugin {
@@ -67,11 +58,12 @@ object BufPlugin extends AutoPlugin {
     )
   }
 
+  @nowarn("cat=unused") // This is used in thedownloadBufSetting task as well as the downloadProtocPlugins task
   private lazy val downloadActions = Def.task[DownloadActions]{
     implicit val logger = streams.value.log
     DownloadActions(
-      baseDir.value,
-      system = detectedSystem.value
+      baseDir = baseDir.value,
+      detectedSystem = detectedSystem.value
     )
   }
 
@@ -96,6 +88,7 @@ object BufPlugin extends AutoPlugin {
       bufActions.value.generate(bufPath.value)
     }
 
+  @nowarn() // For some reason `buf` thinks it's discarding a non unit value
   override def projectSettings =
     Seq(
       bufVersion := None,

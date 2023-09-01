@@ -1,13 +1,10 @@
 package com.github.lukaj9.sbt
 package platform
 
-import java.net.URL
 import scala.io.Source
 import java.io.FileOutputStream
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.io.File
-import sbt.internal.util.ManagedLogger
 import java.net.URI
 import java.nio.file.{Files, Paths}
 import java.io.InputStream

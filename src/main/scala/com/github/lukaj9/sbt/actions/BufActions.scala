@@ -93,7 +93,7 @@ object BufActions {
           Files.exists(path) && Files.isRegularFile(path) && existing == hash
         ) {
           logger.info("Proto files and generation hashes match, skipping generation")
-          Unit
+          ()
         } else {
           logger.info("Generating....")
           executeBufCommand(
@@ -104,7 +104,7 @@ object BufActions {
               workspaceDir.toAbsolutePath().toString()
             )
           )
-          Files.write(path, hash.getBytes())
+          val _ = Files.write(path, hash.getBytes())
         }
       }
 
@@ -122,7 +122,8 @@ object BufActions {
               .getOrElse(List.empty)
 
             val protofiles: Seq[File] = fileHasher.findProtoFiles(
-              workspaceDir.normalize().toAbsolutePath().toString()
+              workspaceDir.normalize().toAbsolutePath().toString(),
+              excludeDirs = excludeDir
             )
             logger.debug(s"Search Directory: ${workspaceDir.toAbsolutePath().toString()}")
             logger.debug("Proto Files Detected")

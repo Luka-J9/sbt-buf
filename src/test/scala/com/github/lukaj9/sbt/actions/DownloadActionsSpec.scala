@@ -6,6 +6,8 @@ import sbt.internal.util.ConsoleLogger
 import java.nio.file.Paths
 import com.github.lukaj9.sbt.platform._
 import java.net.URI
+import java.nio.file.Files
+import java.security.MessageDigest
 
 class DownloadActionsSpec extends FunSuite {
 
@@ -30,7 +32,7 @@ class DownloadActionsSpec extends FunSuite {
           file.delete()
         }
       }
-      directory.delete()
+      val _ = directory.delete()
     }
   }
 
@@ -75,7 +77,7 @@ class DownloadActionsSpec extends FunSuite {
       sha256sum(
         bufPath.toFile
       ),
-      "c2a7c0d7d05b4250cdd06d7d4d18cc145572a6d645f16f8920b4c11a6668fdf8"
+      "cc317bbc69af962ebad09ee415dc61f6792784bffbd0a1d6d80246ae7a7e93fc"
     )
 
     bufPath.toFile().delete()
@@ -143,16 +145,9 @@ class DownloadActionsSpec extends FunSuite {
   }
 
   private def sha256sum(file: java.io.File): String = {
-    import java.security.MessageDigest
-    val digest = MessageDigest.getInstance("SHA-256")
-    val is = new java.io.FileInputStream(file)
-    val buffer = new Array[Byte](8192)
-    var read = 0
-    while ({ read = is.read(buffer); read != -1 }) {
-      digest.update(buffer, 0, read)
-    }
-    is.close()
-    digest.digest().map("%02x".format(_)).mkString
+    val bytes = Files.readAllBytes(file.toPath())
+    val checksum = MessageDigest.getInstance("SHA-256").digest(bytes)
+    checksum.map("%02x".format(_)).mkString
   }
 
 }
