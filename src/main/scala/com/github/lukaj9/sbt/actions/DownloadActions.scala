@@ -1,6 +1,5 @@
 package com.github.lukaj9.sbt.actions
 
-import java.nio.file.Path
 import com.github.lukaj9.sbt.platform.DetectedSystem
 import sbt.util.Logger
 import java.nio.file.Files
@@ -15,12 +14,12 @@ trait DownloadActions {
         overrideLocation: Option[URI],
   ): Unit
 
-  def downloadProtocPlugins(protocPlugins: Seq[ProtocPlugin]): Unit
+  def downloadProtocPlugins(protocPlugins: Seq[ProtocPlugin]): Unit 
 
 }
 
 object DownloadActions {
-  def apply(baseDir: BaseDirectory, system: DetectedSystem)(implicit logger: Logger): DownloadActions = new DownloadActions {
+  def apply(baseDir: BaseDirectory, detectedSystem: DetectedSystem)(implicit logger: Logger): DownloadActions = new DownloadActions {
     override def downloadBuf(
         bufVersion: Option[String],
         overrideLocation: Option[URI],
@@ -30,8 +29,6 @@ object DownloadActions {
       }
 
       val outputPath = baseDir.toBufPath
-
-      val detectedSystem = DetectedSystem.detect
 
       if (!outputPath.toFile.exists()) {
         val buf = overrideLocation match {
@@ -47,7 +44,12 @@ object DownloadActions {
             )
             BufResourceFetchers.downloadFile(value, outputPath)
         }
-        buf.setExecutable(true)
+        
+        val isSet = buf.setExecutable(true)
+
+        if(!isSet){
+          throw new IllegalStateException("Failed to set Buf executable, you may not have enough permissions to do this")
+        }
       }
     }
 
@@ -57,13 +59,9 @@ object DownloadActions {
             Files.createDirectories(protocManaged)
         }
 
-        protocPlugins.flatMap{
-            plugin => (plugin.fn(system).map((_, plugin.fileNameOverride)))
-        }.foreach{
-            case (uri, fileNameOpt) => 
-            val path = uri.getPath();
-            val fileName = fileNameOpt.getOrElse(path.substring(path.lastIndexOf('/') + 1));
-            val outputFile = protocManaged.resolve(fileName).toFile
+        protocPlugins.foreach{
+            case ProtocPlugin(name, uri) => 
+            val outputFile = protocManaged.resolve(name).toFile
             if(!outputFile.exists()) {
                 val plugin = BufResourceFetchers.downloadPlugin(uri, outputFile.toPath())
                 plugin.setExecutable(true)

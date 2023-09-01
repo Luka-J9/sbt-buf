@@ -1,13 +1,10 @@
 package com.github.lukaj9.sbt
 package platform
 
-import java.net.URL
 import scala.io.Source
 import java.io.FileOutputStream
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.io.File
-import sbt.internal.util.ManagedLogger
 import java.net.URI
 import java.nio.file.{Files, Paths}
 import java.io.InputStream
@@ -21,8 +18,10 @@ object BufResourceFetchers {
 
     def latestVersion(): String = {
         val apiUrl = s"$baseUrl/latest"
-        val url = new URL(apiUrl)
-        val inputStream = url.openConnection().getInputStream()
+        val url = new URI(apiUrl).toURL()
+        val connection = url.openConnection()
+        connection.addRequestProperty("User-Agent", "request")
+        val inputStream = connection.getInputStream()
         extractVersion(inputStream)
     }
 
@@ -39,7 +38,7 @@ object BufResourceFetchers {
     def downloadVersion(version: String, system: DetectedSystem): URI = {
         system.toBufPlugin match {
             case None => throw new IllegalArgumentException(s"Detected system was ${system.os} ${system.arch}, which is not supported by Buf at this time - Please Report and issue if you think this is wrong")
-            case Some(value) => new URL(s"$downloadUrl/$version/buf-$value").toURI()
+            case Some(value) => new URI(s"$downloadUrl/$version/buf-$value")
         }
         
     }
@@ -51,8 +50,8 @@ object BufResourceFetchers {
         downloadFile(downloadUrl, to)
     }
 
-    def downloadPlugin(pluginURL: URI, to: java.nio.file.Path)(implicit logger: Logger): File = {
-        downloadFile(pluginURL, to)
+    def downloadPlugin(pluginURI: URI, to: java.nio.file.Path)(implicit logger: Logger): File = {
+        downloadFile(pluginURI, to)
         to.toFile()
     }
 
@@ -62,7 +61,7 @@ object BufResourceFetchers {
         uri.getScheme match {
             case "file" => Files.copy(Paths.get(uri), to).toFile()
             case _ =>
-                val connection = new URL(uri.toString()).openConnection()
+                val connection = new URI(uri.toString()).toURL.openConnection()
                 val contentLength = connection.getContentLength()
                 lazy val out = new FileOutputStream(file)
                 lazy val in = connection.getInputStream

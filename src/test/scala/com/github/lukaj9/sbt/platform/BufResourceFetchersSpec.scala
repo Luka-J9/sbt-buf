@@ -1,16 +1,14 @@
 package com.github.lukaj9.sbt.platform
 
 import munit.FunSuite
-import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStream
-import java.nio.file.Path
 import java.nio.file.Paths
 import sbt.internal.util.ConsoleLogger
 import java.net.URI
 
 
-class BufResourceFetchersSpec extends FunSuite{
+class BufResourceFetchersSpec extends FunSuite {
 
 
   implicit val logger = ConsoleLogger()
@@ -28,7 +26,7 @@ class BufResourceFetchersSpec extends FunSuite{
   test("downloadVersion should return correct URI") {
     val version = "v1.17.0"
     val system = DetectedSystem(Linux, X86_64)
-    val expected = new java.net.URL("https://github.com/bufbuild/buf/releases/download/v1.17.0/buf-Linux-x86_64").toURI()
+    val expected = new java.net.URI("https://github.com/bufbuild/buf/releases/download/v1.17.0/buf-Linux-x86_64")
 
     assertEquals(BufResourceFetchers.downloadVersion(version, system), expected)
   }
@@ -76,6 +74,8 @@ class BufResourceFetchersSpec extends FunSuite{
     assertEquals(download.getName(), "plugin")
     download.delete()
   }
+
+
 }
 
 

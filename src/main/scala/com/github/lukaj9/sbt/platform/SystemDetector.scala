@@ -3,7 +3,6 @@ package com.github.lukaj9.sbt.platform
 import java.{util => ju}
 
 object SystemDetector {
-  private val UNKNOWN = "unknown"
   private val X86_64_RE = "^(x8664|amd64|ia32e|em64t|x64)$".r
   private val X86_32_RE = "^(x8632|x86|i[3-6]86|ia32|x32)$".r
 
@@ -30,12 +29,6 @@ object SystemDetector {
       case "s390x"              => S390x
       case _                    => UnknownArch
     }
-
-  def detectedClassifier(): String = {
-    val osName = sys.props.getOrElse("os.name", "")
-    val osArch = sys.props.getOrElse("os.arch", "")
-    normalizedOs(osName) + "-" + normalizedArch(osArch)
-  }
 
   def normalize(s: String) =
     s.toLowerCase(ju.Locale.US).replaceAll("[^a-z0-9]+", "")
