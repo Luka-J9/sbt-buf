@@ -9,19 +9,23 @@ import com.github.lukaj9.sbt.platform.Windows
 import java.io.File
 import com.github.lukaj9.sbt.models.Buf
 import com.github.lukaj9.sbt.models.BufWorkspace
-import com.github.lukaj9.sbt.models.BufGen
 
 import sys.process.Process
 import com.github.lukaj9.sbt.platform.FileHasher
+import scala.util._
 
 trait BufActions {
   def executeBufCommand(args: Seq[String]): Int
 
-  def generate(workspaceDir: Path, workspace: Either[Buf, BufWorkspace]): Unit
+  def generate(workspaceDir: Path): Unit
 
 }
 
 object BufActions {
+
+  private val bufFileName = "buf.yaml"
+  private val bufWorkspaceFileName = "buf.work.yaml"
+  private val hashFile = "sbt-buf-hashing.txt"
 
   def apply(
       baseDir: BaseDirectory,
@@ -56,11 +60,30 @@ object BufActions {
         processBuilder.run().exitValue()
       }
 
-      override def generate(
+      override def generate(workspaceDir: Path): Unit = {
+        val bufPath = workspaceDir.resolve(bufFileName)
+        val isBuf = Files.exists(bufPath)
+        val bufWorkspacePath = workspaceDir.resolve(bufWorkspaceFileName)
+        val isWorkspace = Files.exists(bufWorkspacePath)
+
+        if(isBuf && isWorkspace) {
+          throw new RuntimeException("We are seeing both a buf file and a workspace file in the same directory, cannot proceed")
+        }
+
+        val result: Either[Buf, BufWorkspace] = if(isBuf){
+          Left(Buf.fromFile(bufPath.toFile()).get)// We just die here
+        } else {
+          Right(BufWorkspace.fromFile(bufWorkspacePath.toFile()).get)
+        }
+
+        generateInternal(workspaceDir, result)
+      }
+
+       def generateInternal(
           workspaceDir: Path,
           workspace: Either[Buf, BufWorkspace]
       ): Unit = {
-        val path = baseDir.value.resolve("buf-gen-hash.txt")
+        val path = baseDir.value.resolve(hashFile)
         lazy val existing =
           new String(Files.readAllBytes(path), StandardCharsets.UTF_8)
         lazy val hash = generateHash(workspaceDir, workspace)
@@ -103,17 +126,22 @@ object BufActions {
             logger.debug(s"Search Directory: ${workspaceDir.toAbsolutePath().toString()}")
             logger.debug("Proto Files Detected")
             protofiles.map(_.getPath()).foreach(logger.debug(_))
-            s"${buf.hashCode().toString()}\n${fileHasher.hashSet(protofiles)}"
+            s"${fileHasher.calculate(buf.originalFile)}\n${fileHasher.hashSet(protofiles)}"
           case Right(bufWorkspace) =>
             val alldir = bufWorkspace.directories
               .map(rp => workspaceDir.resolve(rp.path))
               .map { wp =>
-                val bytes =
-                  Files.readAllBytes(new File(wp.toFile(), "buf.yaml").toPath())
+
+                val buf = Buf.fromFile(new File(wp.toFile(), "buf.yaml")) match {
+                  case Success(x) => x
+                  case Failure(ex) =>
+                    logger.error(s"The Buf file found in path ${wp.toUri().toString()} is not valid, bailing out")
+                    throw ex
+                }
 
                 generateHash(
                   workspaceDir = wp,
-                  workspace = Left(Buf.fromBytes(bytes))
+                  workspace = Left(buf)
                 )
               }
               .mkString("\n")

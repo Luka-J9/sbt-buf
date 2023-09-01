@@ -2,6 +2,7 @@
 name := """sbt-buf"""
 organization := "com.github.lukaj9"
 version := "0.1-SNAPSHOT"
+scalaVersion := "2.12.17"
 
 sbtPlugin := true
 

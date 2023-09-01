@@ -93,7 +93,7 @@ object BufPlugin extends AutoPlugin {
 
   lazy val bufGen = 
     Def.inputTask {
-      bufActions.value.generate(bufPath.value, Left(Buf(Version("v1"), None, List.empty, None, None, None)))
+      bufActions.value.generate(bufPath.value)
     }
 
   override def projectSettings =
