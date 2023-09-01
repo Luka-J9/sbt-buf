@@ -58,7 +58,7 @@ class DownloadActionsSpec extends FunSuite {
       sha256sum(
         bufPath.toFile
       ),
-      "b94a5fa0b0f7b35090c6064125fcd43e95ac8f1da914bbafb8ea311451d2babe"
+      "b6382f2077399185d1dae5fa22a225ed8a8bd5f154663824162361dec7528150"
     )
     bufPath.toFile().delete()
   }
@@ -134,6 +134,8 @@ class DownloadActionsSpec extends FunSuite {
     val bufPath = baseDir.toBufPath
     val overrideUri =
       getClass().getResource("/override/buf").toURI()
+
+    Paths.get(overrideUri).toFile().setExecutable(true)
 
     val shouldNoBeUsed = Some("1.15.1")
     val over = Some(overrideUri)
