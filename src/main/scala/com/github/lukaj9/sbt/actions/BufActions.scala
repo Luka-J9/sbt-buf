@@ -25,6 +25,7 @@ object BufActions {
 
   private val bufFileName = "buf.yaml"
   private val bufWorkspaceFileName = "buf.work.yaml"
+  private val bufGenFileName = "buf.gen.yaml"
   private val hashFile = "sbt-buf-hashing.txt"
 
   def apply(
@@ -126,7 +127,8 @@ object BufActions {
             logger.debug(s"Search Directory: ${workspaceDir.toAbsolutePath().toString()}")
             logger.debug("Proto Files Detected")
             protofiles.map(_.getPath()).foreach(logger.debug(_))
-            s"${fileHasher.calculate(buf.originalFile)}\n${fileHasher.hashSet(protofiles)}"
+            val bufGenHash = Try(workspaceDir.resolve(bufGenFileName).toFile()).map(fileHasher.calculate(_)).getOrElse("")
+            s"${fileHasher.calculate(buf.originalFile)}\n${bufGenHash}\n${fileHasher.hashSet(protofiles)}"
           case Right(bufWorkspace) =>
             val alldir = bufWorkspace.directories
               .map(rp => workspaceDir.resolve(rp.path))

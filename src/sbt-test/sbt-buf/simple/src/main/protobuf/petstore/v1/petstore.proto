@@ -18,6 +18,8 @@ option (scalapb.options) = {
   }
 };
 
+
+
 message Pet {
   int32 id = 1;
   string name = 2;
