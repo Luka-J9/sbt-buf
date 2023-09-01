@@ -21,13 +21,13 @@ object SystemDetector {
 
   def normalizedArch(s: String): Arch =
     normalize(s) match {
-      case X86_64_RE(_)         => X86_64
-      case X86_32_RE(_)         => X86_32
-      case "aarch64" | "arm"    => Aarch64
-      case "ppc64le"            => Ppc64le
-      case "ppc64"              => Ppc_64
-      case "s390x"              => S390x
-      case _                    => UnknownArch
+      case X86_64_RE(_)      => X86_64
+      case X86_32_RE(_)      => X86_32
+      case "aarch64" | "arm" => Aarch64
+      case "ppc64le"         => Ppc64le
+      case "ppc64"           => Ppc_64
+      case "s390x"           => S390x
+      case _                 => UnknownArch
     }
 
   def normalize(s: String) =

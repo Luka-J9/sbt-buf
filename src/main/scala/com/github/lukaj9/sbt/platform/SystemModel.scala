@@ -12,7 +12,6 @@ case object Openbsd extends Os
 case object Netbsd extends Os
 case object UnknownOs extends Os
 
-
 sealed trait Arch
 case object X86_64 extends Arch
 case object X86_32 extends Arch

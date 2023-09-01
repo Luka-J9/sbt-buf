@@ -75,7 +75,8 @@ object FileHasher {
       val subDirs = these.filter(_.isDirectory)
       val filteredSubDirs = subDirs.filterNot(dir =>
         excludeDirs.exists(excludePath =>
-          dir.toPath.normalize.toAbsolutePath.startsWith(excludePath.normalize().toAbsolutePath())  
+          dir.toPath.normalize.toAbsolutePath
+            .startsWith(excludePath.normalize().toAbsolutePath())
         )
       )
       includedFiles ++ filteredSubDirs.flatMap(

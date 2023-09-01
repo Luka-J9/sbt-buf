@@ -1,4 +1,3 @@
-
 name := """sbt-buf"""
 organization := "com.github.lukaj9"
 version := "0.1-SNAPSHOT"
@@ -12,19 +11,23 @@ libraryDependencies ++= Seq(
   "org.scalameta" %% "munit-scalacheck" % "0.7.29" % Test
 )
 
-inThisBuild(List(
-  organization := "com.github.lukaj9",
-  homepage := Some(url("https://github.com/luka-j9/sbt-buf")),
-  licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  developers := List(
-    Developer(
-      "Luka-J9",
-      "Luka Jurukovski",
-      "foo@bar.org",
-      url("https://scala-lang.org")
+inThisBuild(
+  List(
+    organization := "com.github.lukaj9",
+    homepage := Some(url("https://github.com/luka-j9/sbt-buf")),
+    licenses := List(
+      "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
+    ),
+    developers := List(
+      Developer(
+        "Luka-J9",
+        "Luka Jurukovski",
+        "foo@bar.org",
+        url("https://scala-lang.org")
+      )
     )
   )
-))
+)
 
 console / initialCommands := """import com.github.lukaj9.sbt._"""
 
@@ -49,6 +52,10 @@ ThisBuild / githubWorkflowPublish := Seq(
   )
 )
 
-ThisBuild / githubWorkflowOSes := Seq("ubuntu-latest", "macos-latest", "windows-latest")
+ThisBuild / githubWorkflowOSes := Seq(
+  "ubuntu-latest",
+  "macos-latest",
+  "windows-latest"
+)
 
 Test / parallelExecution := false
