@@ -7,6 +7,7 @@ import io.circe._
 import java.io.File
 import io.circe.yaml.parser
 import java.nio.file.Files
+import java.nio.file.Paths
 
 final case class Buf(
     deps: List[Dependency],
@@ -51,7 +52,7 @@ object RelativePath {
     implicit val decoder: Decoder[RelativePath] = new Decoder[RelativePath]{
 
         override def apply(c: HCursor): Decoder.Result[RelativePath] = {
-            Decoder.decodeString.emapTry(path => Try(Path.of(path)).flatMap(RelativePath(_)))(c)
+            Decoder.decodeString.emapTry(path => Try(Paths.get(path)).flatMap(RelativePath(_)))(c)
         }
 
     }
