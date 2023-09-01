@@ -21,7 +21,7 @@ object BufResourceFetchers {
 
     def latestVersion(): String = {
         val apiUrl = s"$baseUrl/latest"
-        val url = new URL(apiUrl)
+        val url = new URI(apiUrl).toURL()
         val connection = url.openConnection()
         connection.addRequestProperty("User-Agent", "request")
         val inputStream = connection.getInputStream()
@@ -41,7 +41,7 @@ object BufResourceFetchers {
     def downloadVersion(version: String, system: DetectedSystem): URI = {
         system.toBufPlugin match {
             case None => throw new IllegalArgumentException(s"Detected system was ${system.os} ${system.arch}, which is not supported by Buf at this time - Please Report and issue if you think this is wrong")
-            case Some(value) => new URL(s"$downloadUrl/$version/buf-$value").toURI()
+            case Some(value) => new URI(s"$downloadUrl/$version/buf-$value")
         }
         
     }
@@ -64,7 +64,7 @@ object BufResourceFetchers {
         uri.getScheme match {
             case "file" => Files.copy(Paths.get(uri), to).toFile()
             case _ =>
-                val connection = new URL(uri.toString()).openConnection()
+                val connection = new URI(uri.toString()).toURL.openConnection()
                 val contentLength = connection.getContentLength()
                 lazy val out = new FileOutputStream(file)
                 lazy val in = connection.getInputStream

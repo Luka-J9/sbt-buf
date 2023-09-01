@@ -28,7 +28,7 @@ class BufResourceFetchersSpec extends FunSuite {
   test("downloadVersion should return correct URI") {
     val version = "v1.17.0"
     val system = DetectedSystem(Linux, X86_64)
-    val expected = new java.net.URL("https://github.com/bufbuild/buf/releases/download/v1.17.0/buf-Linux-x86_64").toURI()
+    val expected = new java.net.URI("https://github.com/bufbuild/buf/releases/download/v1.17.0/buf-Linux-x86_64")
 
     assertEquals(BufResourceFetchers.downloadVersion(version, system), expected)
   }
