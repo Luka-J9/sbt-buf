@@ -127,7 +127,7 @@ object BufActions {
             logger.debug(s"Search Directory: ${workspaceDir.toAbsolutePath().toString()}")
             logger.debug("Proto Files Detected")
             protofiles.map(_.getPath()).foreach(logger.debug(_))
-            val bufGenHash = Try(workspaceDir.resolve(bufGenFileName).toFile()).map(fileHasher.calculate(_)).getOrElse("")
+            val bufGenHash = Try(buf.originalFile.toPath.getParent.resolve(bufGenFileName).toFile()).map(fileHasher.calculate(_)).getOrElse("")
             s"${fileHasher.calculate(buf.originalFile)}\n${bufGenHash}\n${fileHasher.hashSet(protofiles)}"
           case Right(bufWorkspace) =>
             val alldir = bufWorkspace.directories
