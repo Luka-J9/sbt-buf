@@ -112,7 +112,6 @@ object BufActions {
         }
       }
 
-      // TODO: Add gen files to hashing
       private def generateHash(
           workspaceDir: Path,
           workspace: Either[Buf, BufWorkspace]
