@@ -9,12 +9,15 @@ import java.io.File
 class BufWorkspaceSpec extends FunSuite {
 
   test("should decode a buf workspace (all inclusive)") {
-    parser.parse("""
+    parser
+      .parse("""
     |version: v1
     |directories:
     |  - proto
     |  - api
-    """.stripMargin).flatMap(_.as[BufWorkspace]).toTry match {
+    """.stripMargin)
+      .flatMap(_.as[BufWorkspace])
+      .toTry match {
       case Success(bufWorkspace) =>
         assertEquals(
           bufWorkspace,
@@ -31,11 +34,14 @@ class BufWorkspaceSpec extends FunSuite {
   }
 
   test("should fail to decode if we are missing a version") {
-    parser.parse("""
+    parser
+      .parse("""
     |directories:
     |  - proto
     |  - api
-    """.stripMargin).flatMap(_.as[BufWorkspace]).toTry match {
+    """.stripMargin)
+      .flatMap(_.as[BufWorkspace])
+      .toTry match {
       case Success(_) => fail("Should not have decoded")
       case Failure(e) =>
         assertEquals(
@@ -46,11 +52,14 @@ class BufWorkspaceSpec extends FunSuite {
   }
 
   test("should fail to decode if we are missing directories") {
-    parser.parse("""
+    parser
+      .parse("""
     |version: v1
-    """.stripMargin).flatMap(_.as[BufWorkspace]).toTry match {
+    """.stripMargin)
+      .flatMap(_.as[BufWorkspace])
+      .toTry match {
       case Success(_) => fail("Should not have decoded")
-      case Failure(e) => 
+      case Failure(e) =>
         assertEquals(
           e.getMessage,
           "Missing required field: DownField(directories)"
@@ -60,7 +69,8 @@ class BufWorkspaceSpec extends FunSuite {
   }
 
   test("should decode from file") {
-    val file = new File(getClass().getResource("/samples/buf.work.yaml").toURI())
+    val file =
+      new File(getClass().getResource("/samples/buf.work.yaml").toURI())
     BufWorkspace.fromFile(file) match {
       case Success(bufWorkspace) =>
         assertEquals(
