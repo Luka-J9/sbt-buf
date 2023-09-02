@@ -10,6 +10,8 @@ import io.circe.Json
 import io.circe.JsonObject
 import munit.ScalaCheckSuite
 import org.scalacheck.Prop._
+import com.github.lukaj9.sbt.platform.DetectedSystem
+import com.github.lukaj9.sbt.platform.Windows
 
 class BufSpec extends FunSuite with ScalaCheckSuite {
 
@@ -172,6 +174,9 @@ class BufSpec extends FunSuite with ScalaCheckSuite {
   }
 
   test("should decode a relative path correctly if it is a valid path") {
+    assume(
+      DetectedSystem.detect.os != Windows
+    )
     parser.parse("a/b/c/d").flatMap(_.as[RelativePath]).toTry match {
       case Failure(e) => fail("Failed to decode", e)
       case success: Success[RelativePath] =>
