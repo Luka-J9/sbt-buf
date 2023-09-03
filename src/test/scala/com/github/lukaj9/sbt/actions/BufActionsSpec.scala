@@ -14,6 +14,8 @@ import io.circe.DecodingFailure
 import scala.util.Failure
 import scala.util.Success
 
+import com.github.lukaj9.sbt.models._
+
 class BufActionsSpec extends FunSuite {
 
   private implicit val logger = ConsoleLogger()
@@ -46,30 +48,30 @@ class BufActionsSpec extends FunSuite {
     }
   }
 
-  // private val fileHash = new FileHasher {
+  private val fileHash = new FileHasher {
 
-  //   override def calculate(file: File): String = "stable"
+    override def calculate(file: File): String = "stable"
 
-  //   override def hashSet(files: Seq[File]): String = "stable-files"
+    override def hashSet(files: Seq[File]): String = "stable-files"
 
-  //   override def findProtoFiles(
-  //       directory: String,
-  //       excludeDirs: List[Path]
-  //   ): Seq[File] = Seq.empty
+    override def findProtoFiles(
+        directory: String,
+        excludeDirs: List[Path]
+    ): Seq[File] = Seq.empty
 
-  // }
+  }
 
-  // test("BufActions executeBufCommand should execute buf command") {
-  //   val bufActions = BufActions(baseDir, fileHash, false)
-  //   val exitCode = bufActions.executeBufCommand(Seq("--help"))
-  //   assertEquals(exitCode, 0)
-  // }
+  test("BufActions executeBufCommand should execute buf command") {
+    val bufActions = BufActions(baseDir, fileHash, false)
+    val exitCode = bufActions.executeBufCommand(Seq("--help"))
+    assertEquals(exitCode, 0)
+  }
 
-  // test("BufActions executeBufCommand should execute buf command with plugins") {
-  //   val bufActions = BufActions(baseDir, fileHash, true)
-  //   val exitCode = bufActions.executeBufCommand(Seq("--help"))
-  //   assertEquals(exitCode, 0)
-  // }
+  test("BufActions executeBufCommand should execute buf command with plugins") {
+    val bufActions = BufActions(baseDir, fileHash, true)
+    val exitCode = bufActions.executeBufCommand(Seq("--help"))
+    assertEquals(exitCode, 0)
+  }
 
   // New Tests
 
@@ -160,7 +162,7 @@ class BufActionsSpec extends FunSuite {
       assert(!testDir.resolve("target").toFile().exists())
       assertEquals(
         new String(Files.readAllBytes(testDir.resolve("sbt-buf-hashing.txt"))),
-        List(-1766778540, "petstore.proto").mkString("\n")
+        List(BufWorkspace(Version("v1"), List(RelativePath.apply(pathString = "petapis").get)).hashCode(), "petstore.proto").mkString("\n")
       )
       assertEquals(
         result,
