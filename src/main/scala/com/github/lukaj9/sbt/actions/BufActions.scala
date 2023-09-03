@@ -13,11 +13,12 @@ import com.github.lukaj9.sbt.models.BufWorkspace
 import sys.process.Process
 import com.github.lukaj9.sbt.platform.FileHasher
 import scala.util._
+import scala.sys.process.ProcessLogger
 
 trait BufActions {
   def executeBufCommand(args: Seq[String]): Int
 
-  def generate(workspaceDir: Path): Unit
+  def generate(workspaceDir: Path): Int
 
 }
 
@@ -34,6 +35,17 @@ object BufActions {
       containsPlugins: Boolean
   )(implicit logger: Logger): BufActions =
     new BufActions {
+
+      private val processLogger = new ProcessLogger {
+
+        override def out(s: => String): Unit = logger.info(s)
+
+        override def err(s: => String): Unit = logger.err(s)
+
+        override def buffer[T](f: => T): T = f
+
+      }
+
       override def executeBufCommand(
           args: Seq[String]
       ): Int = {
@@ -58,10 +70,10 @@ object BufActions {
           (List(baseDir.toBufPath.toAbsolutePath().toString()) ++ args)
 
         val processBuilder = Process(execute, None, env.toSeq: _*)
-        processBuilder.run().exitValue()
+        processBuilder.run(processLogger).exitValue()
       }
 
-      override def generate(workspaceDir: Path): Unit = {
+      override def generate(workspaceDir: Path): Int = {
         val bufPath = workspaceDir.resolve(bufFileName)
         val isBuf = Files.exists(bufPath)
         val bufWorkspacePath = workspaceDir.resolve(bufWorkspaceFileName)
@@ -70,6 +82,12 @@ object BufActions {
         if (isBuf && isWorkspace) {
           throw new RuntimeException(
             "We are seeing both a buf file and a workspace file in the same directory, cannot proceed"
+          )
+        }
+
+        if (!isBuf && !isWorkspace) {
+          throw new RuntimeException(
+            "We are seeing neither a buf file nor a workspace file in the same directory, cannot proceed"
           )
         }
 
@@ -82,10 +100,10 @@ object BufActions {
         generateInternal(workspaceDir, result)
       }
 
-      def generateInternal(
+      private def generateInternal(
           workspaceDir: Path,
           workspace: Either[Buf, BufWorkspace]
-      ): Unit = {
+      ): Int = {
         val path = baseDir.value.resolve(hashFile)
         lazy val existing =
           new String(Files.readAllBytes(path), StandardCharsets.UTF_8)
@@ -97,18 +115,23 @@ object BufActions {
           logger.info(
             "Proto files and generation hashes match, skipping generation"
           )
-          ()
+          0
         } else {
-          logger.info("Generating....")
-          executeBufCommand(
+          logger.info(
+            s"Generating at directory ${workspaceDir.toAbsolutePath.toString()}"
+          )
+          val exitCode = executeBufCommand(
             List(
               "generate",
               "--template",
-              "buf.gen.yaml",
+              s"${workspaceDir.toAbsolutePath().toString()}/buf.gen.yaml",
               workspaceDir.toAbsolutePath().toString()
             )
           )
-          val _ = Files.write(path, hash.getBytes())
+          if (exitCode == 0) {
+            val _ = Files.write(path, hash.getBytes())
+          }
+          exitCode
         }
       }
 
@@ -141,20 +164,32 @@ object BufActions {
             val alldir = bufWorkspace.directories
               .map(rp => workspaceDir.resolve(rp.path))
               .map { wp =>
-                val buf =
-                  Buf.fromFile(new File(wp.toFile(), "buf.yaml")) match {
-                    case Success(x) => x
-                    case Failure(ex) =>
-                      logger.error(
-                        s"The Buf file found in path ${wp.toUri().toString()} is not valid, bailing out"
-                      )
-                      throw ex
-                  }
+                val file = new File(wp.toFile(), "buf.yaml")
 
-                generateHash(
-                  workspaceDir = wp,
-                  workspace = Left(buf)
-                )
+                if (file.exists) {
+
+                  val buf =
+                    Buf.fromFile(new File(wp.toFile(), "buf.yaml")) match {
+                      case Success(x) => x
+                      case Failure(ex) =>
+                        logger.error(
+                          s"The Buf file found in path ${wp.toUri().toString()} is not valid, bailing out"
+                        )
+                        throw ex
+                    }
+
+                  generateHash(
+                    workspaceDir = wp,
+                    workspace = Left(buf)
+                  )
+                } else {
+                  fileHasher.hashSet(
+                    fileHasher.findProtoFiles(
+                      wp.normalize().toAbsolutePath().toString(),
+                      Nil
+                    )
+                  )
+                }
               }
               .mkString("\n")
 
