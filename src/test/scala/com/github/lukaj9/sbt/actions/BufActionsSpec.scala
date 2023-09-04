@@ -161,8 +161,6 @@ class BufActionsSpec extends FunSuite {
     }
   }
 
-  test("should generate the necessary scala code in the correct location") {}
-
   test("should generate the correct hashfile") {
     bootrapAndCleanup(
       BaseDirectory(sampleDir.resolve("good_cases/happy_path")),
@@ -178,6 +176,13 @@ class BufActionsSpec extends FunSuite {
         """|buf.yaml
            |buf.gen.yaml
            |petstore.proto""".stripMargin
+
+      assert(sampleDir.resolve("good_cases/happy_path/target").toFile().exists())
+
+      assertEquals(
+        sampleDir.resolve("good_cases/happy_path/target/com/example/petstore/generated/petstore").toFile().listFiles().map(_.getName()).toList.sorted,
+        List("ListUsersRequest.scala", "Pet.scala", "PetByIdRequest.scala", "PetByIdResponse.scala", "PetstoreProto.scala", "PetStoreServiceGrpc.scala", "StoreUsersResponse.scala", "User.scala", "UserByNameRequest.scala", "UserByNameResponse.scala").sorted
+      )
         
       assertEquals(
         new String(Files.readAllBytes(sampleDir.resolve("good_cases/happy_path/sbt-buf-hashing.txt"))),
@@ -206,8 +211,6 @@ class BufActionsSpec extends FunSuite {
       )
     }
   }
-
-  test("should generate a whole workspace") {}
 
   def bootrapAndCleanup(directory: BaseDirectory, fileHasher: FileHasher)(
       fn: Try[Int] => Unit
