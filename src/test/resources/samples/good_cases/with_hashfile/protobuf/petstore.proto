@@ -1,0 +1,48 @@
+syntax = "proto3";
+package petstore.v1;
+
+option java_package = "com.example.petstore.generated";
+
+
+message Pet {
+  int32 id = 1;
+  string name = 2;
+}
+
+message User {
+  int32 id = 1;
+  string username = 2;
+  string email = 3;
+  string phone = 4;
+}
+
+message PetByIdRequest {
+  int32 id = 1;
+}
+
+message UserByNameRequest {
+  string username = 1;
+}
+
+message PetByIdResponse {
+  Pet pet = 1;
+}
+
+message UserByNameResponse {
+  User user = 1;
+}
+
+message ListUsersRequest {
+  string msg = 1;
+}
+message StoreUsersResponse {
+  string msg = 1;
+}
+
+service PetStoreService {
+  rpc PetById(PetByIdRequest) returns (PetByIdResponse);
+  rpc UserByName(UserByNameRequest) returns (UserByNameResponse);
+  rpc ListUsers(ListUsersRequest) returns (stream User);
+  rpc StoreUsers(stream User) returns (StoreUsersResponse);
+  rpc BulkUsers(stream User) returns (stream User);
+}

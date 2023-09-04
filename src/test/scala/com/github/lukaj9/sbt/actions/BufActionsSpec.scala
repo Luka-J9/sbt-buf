@@ -15,6 +15,7 @@ import scala.util.Failure
 import scala.util.Success
 
 import com.github.lukaj9.sbt.models._
+import java.nio.charset.StandardCharsets
 
 class BufActionsSpec extends FunSuite {
 
@@ -131,7 +132,22 @@ class BufActionsSpec extends FunSuite {
     }
   }
 
-  test("should do nothing if a hashfile exists and the hashes match") {}
+  test("should do nothing if a hashfile exists and the hashes match") {
+    val expectedHash = 
+      """|buf.yaml
+         |buf.gen.yaml
+         |petstore.proto
+      """.stripMargin.getBytes(StandardCharsets.UTF_8)
+    
+    val dir = sampleDir.resolve("good_cases/with_hashfile")
+
+    Files.write(dir.resolve("sbt-buf-hashing.txt"), expectedHash)
+    
+    bootrapAndCleanup(directory = BaseDirectory(sampleDir.resolve("good_cases/with_hashfile")), fileHasher = staticHasher) { result =>
+      assert(!dir.resolve("target").toFile().exists())
+      assertEquals(result, Success(0))
+    }
+  }
 
   test("should fail to generate if a buf.gen.yaml file does not exist") {
     bootrapAndCleanup(
@@ -148,7 +164,28 @@ class BufActionsSpec extends FunSuite {
 
   test("should generate the necessary scala code in the correct location") {}
 
-  test("should generate the correct hashfile") {}
+  test("should generate the correct hashfile") {
+    bootrapAndCleanup(
+      BaseDirectory(sampleDir.resolve("good_cases/happy_path")),
+      staticHasher
+    ) { result =>
+      result match{
+        case Failure(exception) =>
+          fail("Failed when it should not have", exception)
+        case Success(value) => assertEquals(value, 0)
+      }
+
+      val expectedHash = 
+        """|buf.yaml
+           |buf.gen.yaml
+           |petstore.proto
+        """.stripMargin
+      assertEquals(
+        new String(Files.readAllBytes(sampleDir.resolve("good_cases/happy_path/sbt-buf-hashing.txt"))),
+        expectedHash
+      )
+    }
+  }
 
   test(
     "should exclude the directories in the buf files are configured to ignore"
@@ -170,10 +207,6 @@ class BufActionsSpec extends FunSuite {
       )
     }
   }
-
-  test(
-    "should fail if the workspace dir points to a directory with an invalid buf file"
-  ) {}
 
   test("should generate a whole workspace") {}
 
