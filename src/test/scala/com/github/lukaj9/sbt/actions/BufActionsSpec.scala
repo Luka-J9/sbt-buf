@@ -136,8 +136,7 @@ class BufActionsSpec extends FunSuite {
     val expectedHash = 
       """|buf.yaml
          |buf.gen.yaml
-         |petstore.proto
-      """.stripMargin.getBytes(StandardCharsets.UTF_8)
+         |petstore.proto""".stripMargin.getBytes(StandardCharsets.UTF_8)
     
     val dir = sampleDir.resolve("good_cases/with_hashfile")
 
