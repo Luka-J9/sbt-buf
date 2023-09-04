@@ -176,7 +176,8 @@ class BufActionsSpec extends FunSuite {
       }
 
       val expectedHash = 
-        """|buf.yaml
+        """|-1766778540
+           |buf.yaml
            |buf.gen.yaml
            |petstore.proto
         """.stripMargin
