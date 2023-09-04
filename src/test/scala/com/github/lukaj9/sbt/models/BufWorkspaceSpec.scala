@@ -70,7 +70,7 @@ class BufWorkspaceSpec extends FunSuite {
 
   test("should decode from file") {
     val file =
-      new File(getClass().getResource("/samples/buf.work.yaml").toURI())
+      new File(getClass().getResource("/samples/decoder/buf.work.yaml").toURI())
     BufWorkspace.fromFile(file) match {
       case Success(bufWorkspace) =>
         assertEquals(

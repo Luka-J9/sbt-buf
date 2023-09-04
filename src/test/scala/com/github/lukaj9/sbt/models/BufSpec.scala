@@ -121,7 +121,7 @@ class BufSpec extends FunSuite with ScalaCheckSuite {
 
   test("should parse from file correctly") {
     val exampleFile =
-      new File(getClass().getResource("/samples/buf.yaml").toURI())
+      new File(getClass().getResource("/samples/decoder/buf.yaml").toURI())
     Buf.fromFile(exampleFile) match {
       case Failure(exception) =>
         fail("This should have successfully parse", exception)
