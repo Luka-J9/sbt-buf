@@ -179,8 +179,8 @@ class BufActionsSpec extends FunSuite {
         """|-1766778540
            |buf.yaml
            |buf.gen.yaml
-           |petstore.proto
-        """.stripMargin
+           |petstore.proto""".stripMargin
+        
       assertEquals(
         new String(Files.readAllBytes(sampleDir.resolve("good_cases/happy_path/sbt-buf-hashing.txt"))),
         expectedHash
