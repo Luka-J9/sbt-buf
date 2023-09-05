@@ -16,8 +16,7 @@ import scala.util._
 import scala.sys.process.ProcessLogger
 
 trait BufActions {
-  def executeBufCommand(args: Seq[String],
-          directory: Option[File]): Int
+  def executeBufCommand(args: Seq[String], directory: Option[File]): Int
 
   def generate(workspaceDir: Path): Int
 
@@ -51,29 +50,29 @@ object BufActions {
           args: Seq[String],
           directory: Option[File]
       ): Int = {
-        if(directory.forall(_.isDirectory())){
-        val env =
-          if (containsPlugins) {
-            val detectedSystem = DetectedSystem.detect
-            val envVar = detectedSystem.os match {
-              case Windows => "Path"
-              case _       => "PATH"
+        if (directory.forall(_.isDirectory())) {
+          val env =
+            if (containsPlugins) {
+              val detectedSystem = DetectedSystem.detect
+              val envVar = detectedSystem.os match {
+                case Windows => "Path"
+                case _       => "PATH"
+              }
+              sys.env + (envVar -> (sys.env.getOrElse(
+                envVar,
+                ""
+              ) + File.pathSeparator + baseDir.toProtocPluginsPath
+                .toAbsolutePath()))
+            } else {
+              sys.env
             }
-            sys.env + (envVar -> (sys.env.getOrElse(
-              envVar,
-              ""
-            ) + File.pathSeparator + baseDir.toProtocPluginsPath
-              .toAbsolutePath()))
-          } else {
-            sys.env
-          }
 
-        val execute =
-          (List(baseDir.toBufPath.toAbsolutePath().toString()) ++ args)
+          val execute =
+            (List(baseDir.toBufPath.toAbsolutePath().toString()) ++ args)
 
-        val processBuilder = Process(execute, directory, env.toSeq: _*)
-        println(processBuilder.cat)
-        processBuilder.run(processLogger).exitValue()
+          val processBuilder = Process(execute, directory, env.toSeq: _*)
+          println(processBuilder.cat)
+          processBuilder.run(processLogger).exitValue()
         } else {
           logger.err(s"Submitted directory ${directory} is not a directory}")
           1
@@ -131,7 +130,7 @@ object BufActions {
             List(
               "generate",
               "--template",
-              s"${workspaceDir.toAbsolutePath().toString()}/buf.gen.yaml",
+              s"${workspaceDir.toAbsolutePath().toString()}/buf.gen.yaml"
             ),
             Some(workspaceDir.toAbsolutePath().toFile())
           )
