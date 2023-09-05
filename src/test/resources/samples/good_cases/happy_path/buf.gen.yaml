@@ -1,0 +1,6 @@
+version: v1
+plugins:
+  - plugin: buf.build/community/scalapb-scala:v0.11.13
+    out: target
+    opt: 
+     - grpc

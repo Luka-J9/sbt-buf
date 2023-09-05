@@ -1,0 +1,8 @@
+syntax = "proto3";
+package petstore.ignored.v1;
+
+
+message IgnoredPet {
+    int32 id = 1;
+    string name = 2;
+  }

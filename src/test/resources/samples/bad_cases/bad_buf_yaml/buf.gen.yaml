@@ -1,0 +1,10 @@
+version: v1
+plugins:
+  - plugin: buf.build/community/scalapb-scala:v0.11.13
+    out: src/main/scala
+    opt: 
+     - grpc
+  - plugin: scalapb-validate
+    out: src/main/scala
+    opt:
+     - grpc

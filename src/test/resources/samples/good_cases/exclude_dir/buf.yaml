@@ -1,0 +1,12 @@
+version: v1
+build:
+  excludes:
+    - petapis/protobuf/ignored
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT
+
+

@@ -7,15 +7,14 @@ import sbt.internal.util.ConsoleLogger
 import java.nio.file.Paths
 import com.github.lukaj9.sbt.platform._
 import java.io.File
-import java.io.File
 import java.nio.file.Path
 
 class BufActionsSpec extends FunSuite {
 
   private implicit val logger = ConsoleLogger()
+  val resourcePath = Paths.get(getClass().getResource("/").toURI())
 
-  private val downloadLocation =
-    Paths.get(getClass().getResource("/").toURI()).resolve("test-directory")
+  private val downloadLocation = resourcePath.resolve("test-directory")
 
   private val detectedSystem = DetectedSystem.detect
 
@@ -57,13 +56,13 @@ class BufActionsSpec extends FunSuite {
 
   test("BufActions executeBufCommand should execute buf command") {
     val bufActions = BufActions(baseDir, fileHash, false)
-    val exitCode = bufActions.executeBufCommand(Seq("--help"))
+    val exitCode = bufActions.executeBufCommand(Seq("--version"), None)
     assertEquals(exitCode, 0)
   }
 
   test("BufActions executeBufCommand should execute buf command with plugins") {
     val bufActions = BufActions(baseDir, fileHash, true)
-    val exitCode = bufActions.executeBufCommand(Seq("--help"))
+    val exitCode = bufActions.executeBufCommand(Seq("--version"), None)
     assertEquals(exitCode, 0)
   }
 

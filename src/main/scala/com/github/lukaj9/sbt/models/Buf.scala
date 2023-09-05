@@ -9,6 +9,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 final case class Buf(
+    version: Version,
     deps: List[Dependency],
     build: Option[Build],
     originalFile: File
@@ -28,10 +29,11 @@ object Buf {
 
     override def apply(c: HCursor): Decoder.Result[Buf] = {
       for {
+        version <- c.get[Version]("version")
         deps <- c.getOrElse[List[Dependency]]("deps")(List.empty)
         build <- c.getOrElse[Option[Build]]("build")(None)
       } yield (
-        Buf(deps, build, originalFile)
+        Buf(version, deps, build, originalFile)
       )
     }
 
@@ -53,21 +55,24 @@ object RelativePath {
   implicit val decoder: Decoder[RelativePath] = new Decoder[RelativePath] {
 
     override def apply(c: HCursor): Decoder.Result[RelativePath] = {
-      Decoder.decodeString.emapTry(path =>
-        Try(Paths.get(path)).flatMap(RelativePath(_))
+      Decoder.decodeString.emapTry(
+        RelativePath(_)
       )(c)
     }
 
   }
 
-  def apply(path: Path): Try[RelativePath] = {
-    if (path.isAbsolute() || path.normalize().startsWith(".."))
-      Failure(
-        new IllegalArgumentException(
-          s"Path `${path.toString}` must be relative"
+  def apply(pathString: String): Try[RelativePath] = {
+    Try(Paths.get(pathString)).flatMap { path =>
+      if (path.isAbsolute() || path.startsWith(".."))
+        Failure(
+          new IllegalArgumentException(
+            s"Path `${path.toString}` must be relative"
+          )
         )
-      )
-    else Success(new RelativePath(path))
+      else Success(new RelativePath(path))
+    }
+
   }
 }
 
@@ -76,7 +81,10 @@ case class Build(excludes: List[Excludes])
 object Build {
   implicit val decoder: Decoder[Build] = new Decoder[Build] {
     override def apply(c: HCursor): Decoder.Result[Build] = {
-      c.get[List[Excludes]]("excludes").map(Build(_))
+      c.downField("excludes").as[Option[List[Excludes]]].map {
+        case None        => Build(List.empty)
+        case Some(value) => Build(value)
+      }
     }
 
   }
@@ -100,6 +108,12 @@ object Dependency {
         _.split("/") match {
           case Array(root, org, project) =>
             Success(Dependency(Root(root), Organization(org), Project(project)))
+          case Array(_, _) =>
+            Failure(
+              new IllegalArgumentException(
+                "Splitting by / results in fewer than 3 parts"
+              )
+            )
           case _ =>
             Failure(
               new IllegalArgumentException(
