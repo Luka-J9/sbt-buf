@@ -13,6 +13,10 @@ import scala.util.Try
 import io.circe.DecodingFailure
 import scala.util.Failure
 import scala.util.Success
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.FileVisitResult
+import java.io.IOException
 
 import com.github.lukaj9.sbt.models._
 import java.nio.charset.StandardCharsets
@@ -64,17 +68,17 @@ class BufActionsSpec extends FunSuite {
 
   test("BufActions executeBufCommand should execute buf command") {
     val bufActions = BufActions(baseDir, fileHash, false)
-    val exitCode = bufActions.executeBufCommand(Seq("--help"))
+    val exitCode = bufActions.executeBufCommand(Seq("--version"), None)
     assertEquals(exitCode, 0)
   }
 
   test("BufActions executeBufCommand should execute buf command with plugins") {
     val bufActions = BufActions(baseDir, fileHash, true)
-    val exitCode = bufActions.executeBufCommand(Seq("--help"))
+    val exitCode = bufActions.executeBufCommand(Seq("--version"), None)
     assertEquals(exitCode, 0)
   }
 
-  // New Tests
+  // // New Tests
 
   val sampleDir = resourcePath.resolve("samples")
 
@@ -196,11 +200,11 @@ class BufActionsSpec extends FunSuite {
   ) {}
 
   test(
-    "should produce nothing but still work since buf works"
+    "should generate the correct hashfile and code when a workspace file is present"
   ) {
-    val testDir = sampleDir.resolve("bad_cases/bad_pointer")
+    val testDir = sampleDir.resolve("good_cases/workspace")
     bootrapAndCleanup(BaseDirectory(testDir), staticHasher) { result =>
-      assert(!testDir.resolve("target").toFile().exists())
+      assert(testDir.resolve("target").toFile().exists())
       assertEquals(
         new String(Files.readAllBytes(testDir.resolve("sbt-buf-hashing.txt"))),
         List(BufWorkspace(Version("v1"), List(RelativePath.apply(pathString = "petapis").get)).hashCode(), "petstore.proto").mkString("\n")
@@ -221,7 +225,7 @@ class BufActionsSpec extends FunSuite {
     fn(Try(bufActions.generate(directory.value)))
     val targetDir = directory.value.resolve("target")
     if (targetDir.toFile().exists()) {
-      val _ = targetDir.toFile().delete()
+      deleteNio(targetDir)
     }
     if (directory.value.resolve("buf").toFile().exists()) {
       val _ = directory.value.resolve("buf").toFile().delete()
@@ -230,5 +234,28 @@ class BufActionsSpec extends FunSuite {
       val _ = directory.value.resolve("sbt-buf-hashing.txt").toFile().delete()
     }
   }
+
+  //Shamlessly copied from https://www.baeldung.com/scala/delete-directories-recursively
+  private def deleteNio(root: Path): Unit = {
+  val _ = Files.walkFileTree(
+    root,
+    new SimpleFileVisitor[Path] {
+      override def visitFile(
+        file: Path,
+        attrs: BasicFileAttributes
+      ): FileVisitResult = {
+        Files.delete(file)
+        FileVisitResult.CONTINUE
+      }
+      override def postVisitDirectory(
+        dir: Path,
+        exc: IOException
+      ): FileVisitResult = {
+        Files.delete(dir)
+        FileVisitResult.CONTINUE
+      }
+    }
+  )
+}
 
 }

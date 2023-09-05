@@ -16,7 +16,8 @@ import scala.util._
 import scala.sys.process.ProcessLogger
 
 trait BufActions {
-  def executeBufCommand(args: Seq[String]): Int
+  def executeBufCommand(args: Seq[String],
+          directory: Option[File]): Int
 
   def generate(workspaceDir: Path): Int
 
@@ -47,9 +48,10 @@ object BufActions {
       }
 
       override def executeBufCommand(
-          args: Seq[String]
+          args: Seq[String],
+          directory: Option[File]
       ): Int = {
-
+        if(directory.forall(_.isDirectory())){
         val env =
           if (containsPlugins) {
             val detectedSystem = DetectedSystem.detect
@@ -69,8 +71,13 @@ object BufActions {
         val execute =
           (List(baseDir.toBufPath.toAbsolutePath().toString()) ++ args)
 
-        val processBuilder = Process(execute, None, env.toSeq: _*)
+        val processBuilder = Process(execute, directory, env.toSeq: _*)
+        println(processBuilder.cat)
         processBuilder.run(processLogger).exitValue()
+        } else {
+          logger.err(s"Submitted directory ${directory} is not a directory}")
+          1
+        }
       }
 
       override def generate(workspaceDir: Path): Int = {
@@ -125,8 +132,8 @@ object BufActions {
               "generate",
               "--template",
               s"${workspaceDir.toAbsolutePath().toString()}/buf.gen.yaml",
-              workspaceDir.toAbsolutePath().toString()
-            )
+            ),
+            Some(workspaceDir.toAbsolutePath().toFile())
           )
           if (exitCode == 0) {
             val _ = Files.write(path, hash.getBytes())

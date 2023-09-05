@@ -67,7 +67,7 @@ object BufPlugin extends AutoPlugin {
 
   @nowarn(
     "cat=unused"
-  ) // This is used in thedownloadBufSetting task as well as the downloadProtocPlugins task
+  ) // This is used in the downloadBufSetting task as well as the downloadProtocPlugins task
   private lazy val downloadActions = Def.task[DownloadActions] {
     implicit val logger = streams.value.log
     DownloadActions(
@@ -89,7 +89,7 @@ object BufPlugin extends AutoPlugin {
   lazy val runBuf =
     Def.inputTask {
       val userInput: Seq[String] = Def.spaceDelimited("<arg>").parsed
-      bufActions.value.executeBufCommand(userInput)
+      bufActions.value.executeBufCommand(userInput, None)
     }
 
   lazy val bufGen =
