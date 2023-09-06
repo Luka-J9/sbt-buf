@@ -1,4 +1,4 @@
-package com.github.lukaj9.sbt.actions
+package com.lukaj9.sbt.actions
 
 final case class BaseDirectory(value: java.nio.file.Path) extends AnyVal {
   def toBufPath: java.nio.file.Path = value.resolve("buf")

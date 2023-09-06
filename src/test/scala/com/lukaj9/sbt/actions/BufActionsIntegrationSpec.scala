@@ -1,4 +1,4 @@
-package com.github.lukaj9.sbt.actions
+package com.lukaj9.sbt.actions
 
 import scala.util.Try
 import io.circe.DecodingFailure
@@ -10,14 +10,14 @@ import java.nio.file.FileVisitResult
 import java.io.IOException
 import java.nio.file.Files
 
-import com.github.lukaj9.sbt.models._
+import com.lukaj9.sbt.models._
 import java.nio.charset.StandardCharsets
 import munit.FunSuite
-import com.github.lukaj9.sbt.platform.FileHasher
+import com.lukaj9.sbt.platform.FileHasher
 import java.io.File
 import sbt.internal.util.ConsoleLogger
 import java.nio.file.Paths
-import com.github.lukaj9.sbt.platform.DetectedSystem
+import com.lukaj9.sbt.platform.DetectedSystem
 import java.nio.file.Path
 
 //TODO: Cleanup this test suite, it really should be using before and after all
@@ -217,6 +217,7 @@ class BufActionsIntegrationSpec extends FunSuite {
   def bootrapAndCleanup(directory: BaseDirectory, fileHasher: FileHasher)(
       fn: Try[Int] => Unit
   ) = {
+    Thread.sleep(10000)
     val bufActions = BufActions(directory, fileHasher, false)
     DownloadActions(directory, detectedSystem).downloadBuf(None, None)
 

@@ -1,4 +1,4 @@
-package com.github.lukaj9.sbt.models
+package com.lukaj9.sbt.models
 
 import munit.FunSuite
 import java.io.File
@@ -10,8 +10,8 @@ import io.circe.Json
 import io.circe.JsonObject
 import munit.ScalaCheckSuite
 import org.scalacheck.Prop._
-import com.github.lukaj9.sbt.platform.DetectedSystem
-import com.github.lukaj9.sbt.platform.Windows
+import com.lukaj9.sbt.platform.DetectedSystem
+import com.lukaj9.sbt.platform.Windows
 
 class BufSpec extends FunSuite with ScalaCheckSuite {
 

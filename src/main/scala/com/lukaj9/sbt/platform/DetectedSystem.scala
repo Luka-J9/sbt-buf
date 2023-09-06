@@ -1,6 +1,6 @@
-package com.github.lukaj9.sbt.platform
+package com.lukaj9.sbt.platform
 
-import com.github.lukaj9.sbt.platform._
+import com.lukaj9.sbt.platform._
 
 case class DetectedSystem(os: Os, arch: Arch) {
   def toBufPlugin: Option[String] = {

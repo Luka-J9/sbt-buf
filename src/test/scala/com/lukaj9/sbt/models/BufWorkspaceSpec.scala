@@ -1,4 +1,4 @@
-package com.github.lukaj9.sbt.models
+package com.lukaj9.sbt.models
 
 import munit.FunSuite
 import io.circe.yaml.parser

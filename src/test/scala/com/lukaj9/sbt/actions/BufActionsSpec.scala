@@ -1,11 +1,11 @@
-package com.github.lukaj9.sbt.actions
+package com.lukaj9.sbt.actions
 
 import munit.FunSuite
 
-import com.github.lukaj9.sbt.platform.DetectedSystem
+import com.lukaj9.sbt.platform.DetectedSystem
 import sbt.internal.util.ConsoleLogger
 import java.nio.file.Paths
-import com.github.lukaj9.sbt.platform._
+import com.lukaj9.sbt.platform._
 import java.io.File
 import java.nio.file.Path
 
@@ -24,6 +24,7 @@ class BufActionsSpec extends FunSuite {
 
   override def beforeAll(): Unit = {
     super.beforeAll()
+    Thread.sleep(10000)
     downloadActions.downloadBuf(None, None)
   }
 

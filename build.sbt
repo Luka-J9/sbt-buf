@@ -1,6 +1,5 @@
 name := """sbt-buf"""
-organization := "com.github.lukaj9"
-version := "0.1-SNAPSHOT"
+organization := "com.lukaj9"
 scalaVersion := "2.12.17"
 
 sbtPlugin := true
@@ -13,7 +12,7 @@ libraryDependencies ++= Seq(
 
 inThisBuild(
   List(
-    organization := "com.github.lukaj9",
+    organization := "com.lukaj9",
     homepage := Some(url("https://github.com/luka-j9/sbt-buf")),
     licenses := List(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
@@ -22,14 +21,17 @@ inThisBuild(
       Developer(
         "Luka-J9",
         "Luka Jurukovski",
-        "foo@bar.org",
-        url("https://scala-lang.org")
+        "@luka-j9",
+        url("https://lukaj9.com")
       )
     )
   )
 )
 
-console / initialCommands := """import com.github.lukaj9.sbt._"""
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
+
+console / initialCommands := """import com.lukaj9.sbt._"""
 
 enablePlugins(ScriptedPlugin)
 // set up 'scripted; sbt plugin for testing sbt plugins
@@ -38,7 +40,10 @@ scriptedLaunchOpts ++=
 
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches :=
-  Seq(RefPredicate.StartsWith(Ref.Tag("v")))
+  Seq(
+    RefPredicate.StartsWith(Ref.Tag("v")),
+    RefPredicate.Equals(Ref.Branch("main"))
+  )
 
 ThisBuild / githubWorkflowPublish := Seq(
   WorkflowStep.Sbt(

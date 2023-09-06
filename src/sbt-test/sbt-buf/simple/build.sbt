@@ -4,7 +4,7 @@ scalaVersion := "2.12.1"
 enablePlugins(BufPlugin)
 
 import BufPlugin.autoImport._
-import com.github.lukaj9.sbt.platform._
+import com.lukaj9.sbt.platform._
 import java.net.URI
 
 lazy val v = ("com.thesamet.scalapb" % "protoc-gen-scalapb-validate" % "0.3.4")

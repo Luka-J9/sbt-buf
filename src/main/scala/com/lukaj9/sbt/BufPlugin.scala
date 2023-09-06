@@ -1,12 +1,12 @@
 import sbt.AutoPlugin
 import sbt._
 import Keys._
-import com.github.lukaj9.sbt.platform.DetectedSystem
-import com.github.lukaj9.sbt.actions.BufActions
-import com.github.lukaj9.sbt.actions.DownloadActions
-import com.github.lukaj9.sbt.actions.BaseDirectory
-import com.github.lukaj9.sbt.platform.ProtocPlugin
-import com.github.lukaj9.sbt.platform.FileHasher
+import com.lukaj9.sbt.platform.DetectedSystem
+import com.lukaj9.sbt.actions.BufActions
+import com.lukaj9.sbt.actions.DownloadActions
+import com.lukaj9.sbt.actions.BaseDirectory
+import com.lukaj9.sbt.platform.ProtocPlugin
+import com.lukaj9.sbt.platform.FileHasher
 import scala.annotation.nowarn
 
 object BufPlugin extends AutoPlugin {

@@ -1,17 +1,17 @@
-package com.github.lukaj9.sbt.actions
+package com.lukaj9.sbt.actions
 
 import sbt.util.Logger
-import com.github.lukaj9.sbt.platform.DetectedSystem
+import com.lukaj9.sbt.platform.DetectedSystem
 import java.nio.file.Path
 import java.nio.file.Files
 import java.nio.charset.StandardCharsets
-import com.github.lukaj9.sbt.platform.Windows
+import com.lukaj9.sbt.platform.Windows
 import java.io.File
-import com.github.lukaj9.sbt.models.Buf
-import com.github.lukaj9.sbt.models.BufWorkspace
+import com.lukaj9.sbt.models.Buf
+import com.lukaj9.sbt.models.BufWorkspace
 
 import sys.process.Process
-import com.github.lukaj9.sbt.platform.FileHasher
+import com.lukaj9.sbt.platform.FileHasher
 import scala.util._
 import scala.sys.process.ProcessLogger
 
@@ -71,7 +71,6 @@ object BufActions {
             (List(baseDir.toBufPath.toAbsolutePath().toString()) ++ args)
 
           val processBuilder = Process(execute, directory, env.toSeq: _*)
-          println(processBuilder.cat)
           processBuilder.run(processLogger).exitValue()
         } else {
           logger.err(s"Submitted directory ${directory} is not a directory}")
