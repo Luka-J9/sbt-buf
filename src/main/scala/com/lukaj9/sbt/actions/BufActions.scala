@@ -71,7 +71,6 @@ object BufActions {
             (List(baseDir.toBufPath.toAbsolutePath().toString()) ++ args)
 
           val processBuilder = Process(execute, directory, env.toSeq: _*)
-          println(processBuilder.cat)
           processBuilder.run(processLogger).exitValue()
         } else {
           logger.err(s"Submitted directory ${directory} is not a directory}")
