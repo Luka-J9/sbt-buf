@@ -20,7 +20,7 @@ object BufResourceFetchers {
     val apiUrl = s"$baseUrl/latest"
     val url = new URI(apiUrl).toURL()
     val connection = url.openConnection()
-    connection.addRequestProperty("User-Agent", "Mozilla/5.0")
+    connection.addRequestProperty("User-Agent", "request")
     val inputStream = connection.getInputStream()
     extractVersion(inputStream)
   }
