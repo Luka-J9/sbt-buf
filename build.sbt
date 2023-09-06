@@ -1,6 +1,5 @@
 name := """sbt-buf"""
 organization := "com.lukaj9"
-version := "0.1-SNAPSHOT"
 scalaVersion := "2.12.17"
 
 sbtPlugin := true
@@ -22,12 +21,15 @@ inThisBuild(
       Developer(
         "Luka-J9",
         "Luka Jurukovski",
-        "foo@bar.org",
-        url("https://scala-lang.org")
+        "@luka-j9",
+        url("https://lukaj9.com")
       )
     )
   )
 )
+
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 
 console / initialCommands := """import com.lukaj9.sbt._"""
 
