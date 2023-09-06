@@ -1,4 +1,4 @@
-package com.github.lukaj9.sbt
+package com.lukaj9.sbt
 package platform
 
 import scala.io.Source

@@ -1,4 +1,4 @@
-package com.github.lukaj9.sbt.models
+package com.lukaj9.sbt.models
 
 import java.nio.file.Path
 import scala.util._

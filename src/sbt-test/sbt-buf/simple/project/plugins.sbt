@@ -5,5 +5,5 @@
   //                                 |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
   // else 
     
-    addSbtPlugin("com.github.lukaj9" % """sbt-buf""" % "0.1-SNAPSHOT")
+    addSbtPlugin("com.lukaj9" % """sbt-buf""" % "0.1-SNAPSHOT")
 }

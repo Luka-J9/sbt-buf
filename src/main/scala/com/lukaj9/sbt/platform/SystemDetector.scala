@@ -1,4 +1,4 @@
-package com.github.lukaj9.sbt.platform
+package com.lukaj9.sbt.platform
 
 import java.{util => ju}
 

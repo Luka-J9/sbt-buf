@@ -1,11 +1,11 @@
-package com.github.lukaj9.sbt.actions
+package com.lukaj9.sbt.actions
 
-import com.github.lukaj9.sbt.platform.DetectedSystem
+import com.lukaj9.sbt.platform.DetectedSystem
 import sbt.util.Logger
 import java.nio.file.Files
 import java.net.URI
-import com.github.lukaj9.sbt.platform.BufResourceFetchers
-import com.github.lukaj9.sbt.platform.ProtocPlugin
+import com.lukaj9.sbt.platform.BufResourceFetchers
+import com.lukaj9.sbt.platform.ProtocPlugin
 
 trait DownloadActions {
 
