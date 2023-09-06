@@ -57,6 +57,8 @@ ThisBuild / githubWorkflowPublish := Seq(
   )
 )
 
+ThisBuild / versionScheme := Some("early-semver")
+
 ThisBuild / githubWorkflowOSes := Seq(
   "ubuntu-latest",
   "macos-latest",
