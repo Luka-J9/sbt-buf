@@ -217,7 +217,7 @@ class BufActionsIntegrationSpec extends FunSuite {
   def bootrapAndCleanup(directory: BaseDirectory, fileHasher: FileHasher)(
       fn: Try[Int] => Unit
   ) = {
-    Thread.sleep(3000)
+    Thread.sleep(10000)
     val bufActions = BufActions(directory, fileHasher, false)
     DownloadActions(directory, detectedSystem).downloadBuf(None, None)
 

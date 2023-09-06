@@ -24,7 +24,7 @@ class BufActionsSpec extends FunSuite {
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    Thread.sleep(2000)
+    Thread.sleep(10000)
     downloadActions.downloadBuf(None, None)
   }
 
