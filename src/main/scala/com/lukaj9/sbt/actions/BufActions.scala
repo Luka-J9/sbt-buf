@@ -21,7 +21,8 @@ trait BufActions {
   def generate(workspaceDir: Path): Int
 
   def generateDependencies(
-      workspaceDir: Path
+      workspaceDir: Path,
+      includeImports: Boolean
   ): Int
 
 }
@@ -83,7 +84,7 @@ object BufActions {
         }
       }
 
-      override def generateDependencies(workspaceDir: Path): Int = {
+      override def generateDependencies(workspaceDir: Path, includeImports: Boolean): Int = {
         val bufPath = workspaceDir.resolve(bufFileName)
         val isBuf = Files.exists(bufPath)
         if(isBuf) {
@@ -94,7 +95,7 @@ object BufActions {
                 args = 
                   List(
                     "generate",
-                    "--include-imports",
+                    if(includeImports) "--with-imports" else "",
                     "--template",
                     s"${workspaceDir.toAbsolutePath().toString()}/buf.gen.yaml",
                     dep.name
