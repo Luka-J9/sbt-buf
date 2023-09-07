@@ -95,11 +95,11 @@ object BufActions {
                 args = 
                   List(
                     "generate",
-                    if(includeImports) "--with-imports" else "",
+                    if(includeImports) "--include-imports" else "",
                     "--template",
                     s"${workspaceDir.toAbsolutePath().toString()}/buf.gen.yaml",
                     dep.name
-                  ),
+                  ).filter(_.nonEmpty),
                   Some(workspaceDir.toAbsolutePath().toFile())
               )
           ).max
