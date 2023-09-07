@@ -100,7 +100,9 @@ object Excludes {
 }
 
 case class Name(value: String) extends AnyVal
-case class Dependency(root: Root, org: Organization, project: Project)
+case class Dependency(root: Root, org: Organization, project: Project) {
+  def name = s"${root.value}/${org.value}/${project.value}"
+}
 object Dependency {
   implicit val decoder: Decoder[Dependency] = new Decoder[Dependency] {
     override def apply(c: HCursor): Decoder.Result[Dependency] = {
