@@ -20,6 +20,11 @@ trait BufActions {
 
   def generate(workspaceDir: Path): Int
 
+  def generateDependencies(
+      workspaceDir: Path,
+      includeImports: Boolean
+  ): Int
+
 }
 
 object BufActions {
@@ -35,6 +40,7 @@ object BufActions {
       containsPlugins: Boolean
   )(implicit logger: Logger): BufActions =
     new BufActions {
+
 
       private val processLogger = new ProcessLogger {
 
@@ -74,6 +80,31 @@ object BufActions {
           processBuilder.run(processLogger).exitValue()
         } else {
           logger.err(s"Submitted directory ${directory} is not a directory}")
+          1
+        }
+      }
+
+      override def generateDependencies(workspaceDir: Path, includeImports: Boolean): Int = {
+        val bufPath = workspaceDir.resolve(bufFileName)
+        val isBuf = Files.exists(bufPath)
+        if(isBuf) {
+          val buf = Buf.fromFile(bufPath.toFile()).get
+          buf.deps.map(
+            dep =>
+              executeBufCommand(
+                args = 
+                  List(
+                    "generate",
+                    if(includeImports) "--with-imports" else "",
+                    "--template",
+                    s"${workspaceDir.toAbsolutePath().toString()}/buf.gen.yaml",
+                    dep.name
+                  ),
+                  Some(workspaceDir.toAbsolutePath().toFile())
+              )
+          ).max
+        } else {
+          logger.err("Cannot generate dependencies for a workspace file")
           1
         }
       }

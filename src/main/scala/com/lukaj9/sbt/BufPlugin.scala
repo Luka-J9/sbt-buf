@@ -36,6 +36,15 @@ object BufPlugin extends AutoPlugin {
     lazy val bufGenerate =
       inputKey[Unit]("Generates code according to the buf.gen.yaml file")
 
+    lazy val generateBufWithImports =
+      inputKey[Unit](
+        "Generates all dependencies in the buf.yaml file, as defined in the buf.gen.yaml file, if you have transitive dependencies that collide in definition you will have to explicitly define them"
+      )
+    lazy val generateBufDependencies =
+      inputKey[Unit](
+        "Generates all dependencies in the buf.yaml file, as defined in the buf.gen.yaml file, if you have transitive dependencies that collide in definition you will have to explicitly define them"
+      )
+
     lazy val buf = inputKey[Unit](
       "Run Buf! This process passes commands through to the downloaded CLI tool"
     )
@@ -86,6 +95,14 @@ object BufPlugin extends AutoPlugin {
       downloadActions.value.downloadProtocPlugins(protocPlugins.value)
     }
 
+  lazy val generateBufDependenciesTask = Def.inputTask {
+    bufActions.value.generateDependencies(bufPath.value, false)
+  }
+
+  lazy val generateBufWithImportsTask = Def.inputTask {
+    bufActions.value.generateDependencies(bufPath.value, true)
+  }
+
   lazy val runBuf =
     Def.inputTask {
       val userInput: Seq[String] = Def.spaceDelimited("<arg>").parsed
@@ -113,6 +130,17 @@ object BufPlugin extends AutoPlugin {
       bufGenerate := bufGen
         .dependsOn(bufDownloadGen)
         .dependsOn(downloadBufSetting)
-        .evaluated
+        .evaluated,
+      protocPlugins := Seq.empty,
+      generateBufDependencies := 
+        generateBufDependenciesTask
+        .dependsOn(bufDownload)
+        .dependsOn(downloadBufSetting)
+        .evaluated,
+      generateBufWithImports := 
+        generateBufWithImportsTask
+        .dependsOn(bufDownload)
+        .dependsOn(downloadBufSetting)
+        .evaluated,
     )
 }
