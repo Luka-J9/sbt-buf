@@ -44,7 +44,7 @@ class DownloadActionsSpec extends FunSuite {
       "This test is only for Windows"
     )
     val bufPath = baseDir.toBufPath
-    downloadActions.downloadBuf(Some("1.15.1"), None)
+    downloadActions.downloadBuf(Some("v1.15.1"), None)
     assert(bufPath.toFile.exists)
     // Assert that the sha256sum of the downloaded file matches the expected value
     assertEquals(
@@ -64,7 +64,7 @@ class DownloadActionsSpec extends FunSuite {
       "This test is only for Linux"
     )
     val bufPath = baseDir.toBufPath
-    downloadActions.downloadBuf(Some("1.15.1"), None)
+    downloadActions.downloadBuf(Some("v1.15.1"), None)
     assert(bufPath.toFile.exists)
     assertEquals(
       sha256sum(
@@ -84,7 +84,7 @@ class DownloadActionsSpec extends FunSuite {
       "This test is only for Linux"
     )
     val bufPath = baseDir.toBufPath
-    downloadActions.downloadBuf(Some("1.15.1"), None)
+    downloadActions.downloadBuf(Some("v1.15.1"), None)
     assert(bufPath.toFile.exists)
 
     assertEquals(
@@ -130,7 +130,7 @@ class DownloadActionsSpec extends FunSuite {
 
     Paths.get(overrideUri).toFile().setExecutable(true)
 
-    val shouldNoBeUsed = Some("1.15.1")
+    val shouldNoBeUsed = Some("v1.15.1")
     val over = Some(overrideUri)
     downloadActions.downloadBuf(shouldNoBeUsed, over)
     assertEquals(
