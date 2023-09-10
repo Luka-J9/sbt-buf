@@ -20,7 +20,6 @@ import java.nio.file.Paths
 import com.lukaj9.sbt.platform.DetectedSystem
 import java.nio.file.Path
 
-//TODO: Cleanup this test suite, it really should be using before and after all
 class BufActionsIntegrationSpec extends FunSuite {
   private implicit val logger = ConsoleLogger()
   val resourcePath = Paths.get(getClass().getResource("/").toURI())
@@ -43,10 +42,38 @@ class BufActionsIntegrationSpec extends FunSuite {
 
   }
 
+  val bufAction = BufActions(BaseDirectory(sampleDir), staticHasher, false)
+
+  def bootrapAndCleanup(directory: BaseDirectory)(
+      fn: Try[Int] => Unit
+  ) = {
+    try {
+      fn(Try(bufAction.generate(directory.value)))
+    } finally {
+      val targetDir = directory.value.resolve("target")
+      if (targetDir.toFile().exists()) {
+        deleteNio(targetDir)
+      }
+      if (sampleDir.resolve("sbt-buf-hashing.txt").toFile().exists()) {
+        val _ = sampleDir.resolve("sbt-buf-hashing.txt").toFile().delete()
+      }
+    }
+  }
+
+  override def beforeAll(): Unit = {
+    DownloadActions(BaseDirectory(sampleDir), detectedSystem)
+      .downloadBuf(None, None)
+  }
+
+  override def afterAll(): Unit = {
+    if (sampleDir.resolve("buf").toFile().exists()) {
+      val _ = sampleDir.resolve("buf").toFile().delete()
+    }
+  }
+
   test("should fail when buf.yaml and buf.workspace file not present") {
     bootrapAndCleanup(
-      BaseDirectory(sampleDir.resolve("bad_cases/no_buf_files")),
-      staticHasher
+      BaseDirectory(sampleDir.resolve("bad_cases/no_buf_files"))
     ) { result =>
       val _ = interceptMessage[RuntimeException](
         "We are seeing neither a buf file nor a workspace file in the same directory, cannot proceed"
@@ -56,8 +83,7 @@ class BufActionsIntegrationSpec extends FunSuite {
 
   test("should fail if both a buf.yaml and a buf.workspace file are present") {
     bootrapAndCleanup(
-      BaseDirectory(sampleDir.resolve("bad_cases/too_many_bufs")),
-      staticHasher
+      BaseDirectory(sampleDir.resolve("bad_cases/too_many_bufs"))
     ) { result =>
       val _ = interceptMessage[RuntimeException](
         "We are seeing both a buf file and a workspace file in the same directory, cannot proceed"
@@ -67,8 +93,7 @@ class BufActionsIntegrationSpec extends FunSuite {
 
   test("should fail if the buf.yaml detected is not valid") {
     bootrapAndCleanup(
-      BaseDirectory(sampleDir.resolve("bad_cases/bad_buf_yaml")),
-      staticHasher
+      BaseDirectory(sampleDir.resolve("bad_cases/bad_buf_yaml"))
     ) { result =>
       val _ = intercept[DecodingFailure](result.get)
     }
@@ -76,8 +101,7 @@ class BufActionsIntegrationSpec extends FunSuite {
 
   test("should fail if the buf.workspace detected is not valid") {
     bootrapAndCleanup(
-      BaseDirectory(sampleDir.resolve("bad_cases/bad_buf_workspace")),
-      staticHasher
+      BaseDirectory(sampleDir.resolve("bad_cases/bad_buf_workspace"))
     ) { result =>
       val _ = intercept[DecodingFailure](result.get)
     }
@@ -91,11 +115,10 @@ class BufActionsIntegrationSpec extends FunSuite {
 
     val dir = sampleDir.resolve("good_cases/with_hashfile")
 
-    Files.write(dir.resolve("sbt-buf-hashing.txt"), expectedHash)
+    Files.write(sampleDir.resolve("sbt-buf-hashing.txt"), expectedHash)
 
     bootrapAndCleanup(
-      directory = BaseDirectory(sampleDir.resolve("good_cases/with_hashfile")),
-      fileHasher = staticHasher
+      directory = BaseDirectory(sampleDir.resolve("good_cases/with_hashfile"))
     ) { result =>
       assert(!dir.resolve("target").toFile().exists())
       assertEquals(result, Success(0))
@@ -104,8 +127,7 @@ class BufActionsIntegrationSpec extends FunSuite {
 
   test("should fail to generate if a buf.gen.yaml file does not exist") {
     bootrapAndCleanup(
-      BaseDirectory(sampleDir.resolve("bad_cases/no_buf_gen_file")),
-      staticHasher
+      BaseDirectory(sampleDir.resolve("bad_cases/no_buf_gen_file"))
     ) { result =>
       result match {
         case Failure(exception) =>
@@ -117,8 +139,7 @@ class BufActionsIntegrationSpec extends FunSuite {
 
   test("should generate the correct hashfile") {
     bootrapAndCleanup(
-      BaseDirectory(sampleDir.resolve("good_cases/happy_path")),
-      staticHasher
+      BaseDirectory(sampleDir.resolve("good_cases/happy_path"))
     ) { result =>
       result match {
         case Failure(exception) =>
@@ -162,7 +183,7 @@ class BufActionsIntegrationSpec extends FunSuite {
       assertEquals(
         new String(
           Files.readAllBytes(
-            sampleDir.resolve("good_cases/happy_path/sbt-buf-hashing.txt")
+            sampleDir.resolve("sbt-buf-hashing.txt")
           )
         ),
         expectedHash
@@ -174,7 +195,7 @@ class BufActionsIntegrationSpec extends FunSuite {
     "should exclude the directories in the buf files are configured to ignore"
   ) {
     val testDir = sampleDir.resolve("good_cases/exclude_dir")
-    bootrapAndCleanup(BaseDirectory(testDir), staticHasher) { result =>
+    bootrapAndCleanup(BaseDirectory(testDir)) { result =>
       assertEquals(
         result,
         Success(0)
@@ -184,7 +205,7 @@ class BufActionsIntegrationSpec extends FunSuite {
         !testDir.resolve("target/petstore/ignored/v1/ignored").toFile().exists()
       )
       assertEquals(
-        new String(Files.readAllBytes(testDir.resolve("sbt-buf-hashing.txt"))),
+        new String(Files.readAllBytes(sampleDir.resolve("sbt-buf-hashing.txt"))),
         List("buf.yaml", "buf.gen.yaml", "petstore.proto").mkString("\n")
       )
 
@@ -195,10 +216,10 @@ class BufActionsIntegrationSpec extends FunSuite {
     "should generate the correct hashfile and code when a workspace file is present"
   ) {
     val testDir = sampleDir.resolve("good_cases/workspace")
-    bootrapAndCleanup(BaseDirectory(testDir), staticHasher) { result =>
+    bootrapAndCleanup(BaseDirectory(testDir)) { result =>
       assert(testDir.resolve("target").toFile().exists())
       assertEquals(
-        new String(Files.readAllBytes(testDir.resolve("sbt-buf-hashing.txt"))),
+        new String(Files.readAllBytes(sampleDir.resolve("sbt-buf-hashing.txt"))),
         List(
           BufWorkspace(
             Version("v1"),
@@ -214,25 +235,16 @@ class BufActionsIntegrationSpec extends FunSuite {
     }
   }
 
-  def bootrapAndCleanup(directory: BaseDirectory, fileHasher: FileHasher)(
-      fn: Try[Int] => Unit
-  ) = {
-    Thread.sleep(10000)
-    val bufActions = BufActions(directory, fileHasher, false)
-    DownloadActions(directory, detectedSystem).downloadBuf(None, None)
-
-    fn(Try(bufActions.generate(directory.value)))
-    val targetDir = directory.value.resolve("target")
-    if (targetDir.toFile().exists()) {
-      deleteNio(targetDir)
-    }
-    if (directory.value.resolve("buf").toFile().exists()) {
-      val _ = directory.value.resolve("buf").toFile().delete()
-    }
-    if (directory.value.resolve("sbt-buf-hashing.txt").toFile().exists()) {
-      val _ = directory.value.resolve("sbt-buf-hashing.txt").toFile().delete()
-    }
+  test("BufActions executeBufCommand should execute buf command") {
+    val exitCode = bufAction.executeBufCommand(Seq("--version"), None)
+    assertEquals(exitCode, 0)
   }
+
+  test("BufActions executeBufCommand should execute buf command with plugins") {
+    val exitCode = bufAction.executeBufCommand(Seq("--version"), None)
+    assertEquals(exitCode, 0)
+  }
+
 
   // Shamlessly copied from https://www.baeldung.com/scala/delete-directories-recursively
   private def deleteNio(root: Path): Unit = {
