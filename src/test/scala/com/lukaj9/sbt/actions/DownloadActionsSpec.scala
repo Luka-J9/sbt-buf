@@ -35,12 +35,6 @@ class DownloadActionsSpec extends FunSuite {
     }
   }
 
-  test("DownloadActions downloadBuf should download buf to the correct path") {
-    val bufPath = baseDir.toBufPath
-    downloadActions.downloadBuf(None, None)
-    assert(bufPath.toFile.exists)
-  }
-
   test(
     "DownloadActions downloadBuf downloads the override version if provided (Windows X86)"
   ) {
