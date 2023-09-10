@@ -70,7 +70,7 @@ class DownloadActionsSpec extends FunSuite {
       sha256sum(
         bufPath.toFile
       ),
-      "cc317bbc69af962ebad09ee415dc61f6792784bffbd0a1d6d80246ae7a7e93fc"
+      "91b7005e3b11ac2e7925fbf36b5e97af256db397c7754aa491c479b6da61b5f9"
     )
 
     bufPath.toFile().delete()
