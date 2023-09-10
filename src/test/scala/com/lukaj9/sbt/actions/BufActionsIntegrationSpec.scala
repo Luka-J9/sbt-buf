@@ -235,6 +235,17 @@ class BufActionsIntegrationSpec extends FunSuite {
     }
   }
 
+  test("BufActions executeBufCommand should execute buf command") {
+    val exitCode = bufAction.executeBufCommand(Seq("--version"), None)
+    assertEquals(exitCode, 0)
+  }
+
+  test("BufActions executeBufCommand should execute buf command with plugins") {
+    val exitCode = bufAction.executeBufCommand(Seq("--version"), None)
+    assertEquals(exitCode, 0)
+  }
+
+
   // Shamlessly copied from https://www.baeldung.com/scala/delete-directories-recursively
   private def deleteNio(root: Path): Unit = {
     val _ = Files.walkFileTree(
