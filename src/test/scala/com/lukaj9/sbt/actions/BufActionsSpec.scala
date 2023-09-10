@@ -23,8 +23,6 @@ class BufActionsSpec extends FunSuite {
   private val downloadActions = DownloadActions(baseDir, detectedSystem)
 
   override def beforeAll(): Unit = {
-    super.beforeAll()
-    Thread.sleep(10000)
     downloadActions.downloadBuf(None, None)
   }
 

@@ -132,15 +132,15 @@ object BufPlugin extends AutoPlugin {
         .dependsOn(downloadBufSetting)
         .evaluated,
       protocPlugins := Seq.empty,
-      generateBufDependencies := 
+      generateBufDependencies :=
         generateBufDependenciesTask
-        .dependsOn(bufDownload)
-        .dependsOn(downloadBufSetting)
-        .evaluated,
-      generateBufWithImports := 
+          .dependsOn(bufDownload)
+          .dependsOn(downloadBufSetting)
+          .evaluated,
+      generateBufWithImports :=
         generateBufWithImportsTask
-        .dependsOn(bufDownload)
-        .dependsOn(downloadBufSetting)
-        .evaluated,
+          .dependsOn(bufDownload)
+          .dependsOn(downloadBufSetting)
+          .evaluated
     )
 }

@@ -23,8 +23,6 @@ class DownloadActionsSpec extends FunSuite {
   private val downloadActions = DownloadActions(baseDir, detectedSystem)
 
   override def beforeAll(): Unit = {
-    super.beforeAll()
-    Thread.sleep(10000)
     val directory = downloadLocation.toFile()
     if (directory.exists() && directory.isDirectory) {
       val files = directory.listFiles()

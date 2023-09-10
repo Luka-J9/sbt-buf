@@ -41,7 +41,6 @@ object BufActions {
   )(implicit logger: Logger): BufActions =
     new BufActions {
 
-
       private val processLogger = new ProcessLogger {
 
         override def out(s: => String): Unit = logger.info(s)
@@ -84,25 +83,28 @@ object BufActions {
         }
       }
 
-      override def generateDependencies(workspaceDir: Path, includeImports: Boolean): Int = {
+      override def generateDependencies(
+          workspaceDir: Path,
+          includeImports: Boolean
+      ): Int = {
         val bufPath = workspaceDir.resolve(bufFileName)
         val isBuf = Files.exists(bufPath)
-        if(isBuf) {
+        if (isBuf) {
           val buf = Buf.fromFile(bufPath.toFile()).get
-          buf.deps.map(
-            dep =>
+          buf.deps
+            .map(dep =>
               executeBufCommand(
-                args = 
-                  List(
-                    "generate",
-                    if(includeImports) "--include-imports" else "",
-                    "--template",
-                    s"${workspaceDir.toAbsolutePath().toString()}/buf.gen.yaml",
-                    dep.name
-                  ).filter(_.nonEmpty),
-                  Some(workspaceDir.toAbsolutePath().toFile())
+                args = List(
+                  "generate",
+                  if (includeImports) "--include-imports" else "",
+                  "--template",
+                  s"${workspaceDir.toAbsolutePath().toString()}/buf.gen.yaml",
+                  dep.name
+                ).filter(_.nonEmpty),
+                Some(workspaceDir.toAbsolutePath().toFile())
               )
-          ).max
+            )
+            .max
         } else {
           logger.err("Cannot generate dependencies for a workspace file")
           1
