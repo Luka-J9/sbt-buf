@@ -11,7 +11,7 @@ Install this plugin by including the following in your `project/plugins.sbt`
 addSbtPlugin("com.lukaj9" % "sbt-buf" % "<VERSION>")
 ```
 
-It's recommended to familiarize yourself with the [Buf Cli Tool][https://buf.build/docs/ecosystem/cli-overview] as setup and use are well documented, and this project is only intended to make Scala integration easier.
+It's recommended to familiarize yourself with the [Buf Cli Tool](https://buf.build/docs/ecosystem/cli-overview) as setup and use are well documented, and this project is only intended to make Scala integration easier.
 
 ## What is Buf and why would I use it?
 To pull directly from Buf project's [README][https://github.com/bufbuild/buf/blob/main/README.md]
