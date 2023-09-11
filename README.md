@@ -14,7 +14,7 @@ addSbtPlugin("com.lukaj9" % "sbt-buf" % "<VERSION>")
 It's recommended to familiarize yourself with the [Buf Cli Tool](https://buf.build/docs/ecosystem/cli-overview) as setup and use are well documented, and this project is only intended to make Scala integration easier.
 
 ## What is Buf and why would I use it?
-To pull directly from Buf project's [README][https://github.com/bufbuild/buf/blob/main/README.md]
+To pull directly from Buf project's [README](https://github.com/bufbuild/buf/blob/main/README.md)
 
 ```
 The `buf` CLI is a tool for working with Protocol Buffers.
@@ -23,12 +23,12 @@ The `buf` CLI is a tool for working with Protocol Buffers.
 - The ability to manage Protobuf assets on the Buf Schema Registry (BSR).
 - A linter that enforces good API design choices and structure.
 - A breaking change detector that enforces compatibility at the source code or wire level.
-- A generator that invokes your plugins based on configurable [templates][templates].
+- A generator that invokes your plugins based on configurable templates.
 - A formatter that formats your Protobuf files in accordance with industry standards.
 - Integration with the Buf Schema Registry, including full dependency management.
 ```
 
-If this sounds interesting, and you want to delve further into all the things buf can do for you, I'd recommend taking a look at [Buf's Documentation][https://buf.build/docs/introduction]
+If this sounds interesting, and you want to delve further into all the things buf can do for you, I'd recommend taking a look at [Buf's Documentation](https://buf.build/docs/introduction)
 
 
 ## Why this plugin?
@@ -41,9 +41,9 @@ This plugin simplifies collaboration by Downloading the Buf release of your choi
 
 Similar to installation of Buf, this plugin will also manage your protoc plugins (these can be run natively by Buf), also in the scope of your project. Typically a user will have to install each protoc plugin the application uses on their computers path and ensure that if different projects have different versions they are appropriately named. This is tedious and error prone.
 
-While Buf has a native solution for this called [Remote Plugins][https://buf.build/plugins], these plugins are managed by the Buf team themselves, so it may not include your desired plugin. At the time of writing only two of the many Scala plugins are available for consumption. This leads to a catch 22 where support for Scala plugins are low because demand is low because integration is difficult. Hopefully this project fixes that!
+While Buf has a native solution for this called [Remote Plugins](https://buf.build/plugins), these plugins are managed by the Buf team themselves, so it may not include your desired plugin. At the time of writing only two of the many Scala plugins are available for consumption. This leads to a catch 22 where support for Scala plugins are low because demand is low because integration is difficult. Hopefully this project fixes that!
 
-If you have a plugin you wish to see supported create or bump an issue in [buf plugins][https://github.com/bufbuild/plugins/issues] project. In the meantime hopefully the protoc plugins will bridge that gap.
+If you have a plugin you wish to see supported create or bump an issue in [buf plugins](https://github.com/bufbuild/plugins/issues) project. In the meantime hopefully the protoc plugins will bridge that gap.
 
 Using Buf (even without BSR), you are no longer tied to protobuf files needing to be published in Maven in order to be accessable, all code is generated locally for your project.
 
@@ -61,7 +61,7 @@ This setting pins your Buf CLI version to the one selected when downloading from
 The default is None, which will Download the latest.
 *Example*: `Some("vX.Y.Z")` 
 *Default*: `None`
-*Note*: The version can be found on the [Buf releases page][https://github.com/bufbuild/buf/releases]. Additionally this will only compute the latest the first time you download the CLI tool, you'll have to run a clean if you want to refetch the latest.
+*Note*: The version can be found on the [Buf releases page](https://github.com/bufbuild/buf/releases). Additionally this will only compute the latest the first time you download the CLI tool, you'll have to run a clean if you want to refetch the latest.
 
 ### `detectedSystem` setting
 This setting records what the detected system, this determines what version of Buf is installed, and can be used to in other settings to determine what other os and architecture specific files to download. 
@@ -110,7 +110,7 @@ This is the escape hatch - if there are ease of use functionality missing with t
 Tip: If your proto files don't exist in BSR yet - take a look at the CLI doc for buf generate, you can do fancy things like generate protos from a remote git project. This will likely be added as a feature to configure in the plugin in the future.
 
 ### `bufGenerate` task
-Generates code according to the `buf.gen.yaml` file. This file should exist in the same directory as the `bufPath` setting
+Generates code according to the `buf.gen.yaml` file. This file should exist in the same directory as the `bufPath` setting. This setting creates a hash of the buf files used, and the proto files processed, so this can be tied into your compile phase little overhead.
 
 ### `generateBufDependencies` task
 Looks at the dependencies found `buf.yaml` file and generates them individually.

@@ -30,9 +30,6 @@ object BufPlugin extends AutoPlugin {
     lazy val bufDownloadGen =
       taskKey[Unit]("Download Protoc Plugins Used for Gen")
 
-    lazy val bufClear =
-      taskKey[Unit]("Clears all sbt-buf files from target cache")
-
     lazy val bufGenerate =
       inputKey[Unit]("Generates code according to the buf.gen.yaml file")
 
