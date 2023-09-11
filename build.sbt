@@ -31,7 +31,7 @@ inThisBuild(
 sonatypeCredentialHost := "s01.oss.sonatype.org"
 sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 
-console / initialCommands := """import com.lukaj9.sbt._"""
+console / initialCommands := """import com.lukaj9.sbtbuf._"""
 
 enablePlugins(ScriptedPlugin)
 // set up 'scripted; sbt plugin for testing sbt plugins
