@@ -19,7 +19,6 @@ To pull directly from Buf project's [README](https://github.com/bufbuild/buf/blo
 ```
 The `buf` CLI is a tool for working with Protocol Buffers.
 
-<a id="features"></a>
 - The ability to manage Protobuf assets on the Buf Schema Registry (BSR).
 - A linter that enforces good API design choices and structure.
 - A breaking change detector that enforces compatibility at the source code or wire level.
@@ -28,7 +27,7 @@ The `buf` CLI is a tool for working with Protocol Buffers.
 - Integration with the Buf Schema Registry, including full dependency management.
 ```
 
-If this sounds interesting, and you want to delve further into all the things buf can do for you, I'd recommend taking a look at [Buf's Documentation](https://buf.build/docs/introduction)
+If this sounds interesting, and you want to delve further into all the things Buf can do for you, I'd recommend taking a look at [Buf's Documentation](https://buf.build/docs/introduction)
 
 
 ## Why this plugin?
