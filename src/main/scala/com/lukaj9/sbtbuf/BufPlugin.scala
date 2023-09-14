@@ -103,7 +103,7 @@ object BufPlugin extends AutoPlugin {
   lazy val runBuf =
     Def.inputTask {
       val userInput: Seq[String] = Def.spaceDelimited("<arg>").parsed
-      bufActions.value.executeBufCommand(userInput, None)
+      bufActions.value.executeBufCommand(userInput, Some(bufPath.value.toAbsolutePath().toFile()))
     }
 
   lazy val bufGen =

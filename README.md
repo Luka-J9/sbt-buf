@@ -16,7 +16,7 @@ It's recommended to familiarize yourself with the [Buf Cli Tool](https://buf.bui
 ## What is Buf and why would I use it?
 To pull directly from Buf project's [README](https://github.com/bufbuild/buf/blob/main/README.md)
 
-```
+
 The `buf` CLI is a tool for working with Protocol Buffers.
 
 - The ability to manage Protobuf assets on the Buf Schema Registry (BSR).
@@ -25,7 +25,7 @@ The `buf` CLI is a tool for working with Protocol Buffers.
 - A generator that invokes your plugins based on configurable templates.
 - A formatter that formats your Protobuf files in accordance with industry standards.
 - Integration with the Buf Schema Registry, including full dependency management.
-```
+
 
 If this sounds interesting, and you want to delve further into all the things Buf can do for you, I'd recommend taking a look at [Buf's Documentation](https://buf.build/docs/introduction)
 
@@ -58,22 +58,29 @@ This will give you an "out of the box" setup, if you wish to customize your beha
 ### `bufVersion` setting
 This setting pins your Buf CLI version to the one selected when downloading from the github releases.
 The default is None, which will Download the latest.
+
 *Example*: `Some("vX.Y.Z")` 
+
 *Default*: `None`
+
 *Note*: The version can be found on the [Buf releases page](https://github.com/bufbuild/buf/releases). Additionally this will only compute the latest the first time you download the CLI tool, you'll have to run a clean if you want to refetch the latest.
 
 ### `detectedSystem` setting
 This setting records what the detected system, this determines what version of Buf is installed, and can be used to in other settings to determine what other os and architecture specific files to download. 
 
 *Example*: `com.lukaj9.sbtbuf.platform.DetectedSystem(os = Osx, arch = X86_64)`
+
 *Default*: Your system's OS and Arch, if it can be determined.
+
 *Note*: that at the time of writing only Linux/Darwin/Windows and x86_64 and ARM are supported. If this changes a please raise an issue - otherwise you'll likely have to use the next setting.
 
 ### `bufOverride` setting
 This setting allows you to choose a different location to pull your Buf CLI tool from. This is for use cases where downloading from Github releases is not viable.
 
 *Example*: `Some(new java.net.URI("https://selfhosted.com/buf"))`
+
 *Default*: `None``
+
 *Note*: Buf is OS and architecture dependent, so you'll need all variants and pattern match on the system type if you want to support multiple OS and architecture types
 
 ### `protocPlugins` setting
@@ -93,17 +100,21 @@ protocPlugins := Seq(
     )
 )
 ```
+
 *Default*: `Seq.empty`
+
 *Note*: Like Buf protoc plugins are typically OS dependent, so you'll likely need to pattern match. Additionally it's recommended that the naming convention adhears to the standard `protoc-gen-<plugin-name>` as Buf expects that naming convention.
 
 ### `bufPath` setting
 This setting allows you to define where your `buf.yaml` or `buf.work.yaml` file is.
 
 *Example*: `baseDirectory.value.toPath().resolve("src/main/protobuf")`
+
 *Default*: `baseDirectory.value.toPath()`
+
 *Note*: It is highly recommended that this is set relative to your `baseDirectory`, this is due to the fact that Buf functions off of relative paths and recursively finds protofiles when doing things like code generation. This will likely be more strictly enforced in future versions of the plugin. Additionally it is worth noting that while buf doesn't take issue with having a buf file and a workspace file in the same directory, this plugin will explicitly error out in these cases. This due to some book keeping needed for code generation, as well as keeping the configurations for this plugin simple. 
 
-### `buf` taks
+### `buf` task
 This is the escape hatch - if there are ease of use functionality missing with this plugin you can leverage this to execute any arbitrary buf command in SBT. Arguments after `buf` are passed to the CLI tool as is. You really shouldn't need to rely on this, so if you are finding yourself needing to use this please raise an issue with your use case!
 
 Tip: If your proto files don't exist in BSR yet - take a look at the CLI doc for buf generate, you can do fancy things like generate protos from a remote git project. This will likely be added as a feature to configure in the plugin in the future.
