@@ -41,6 +41,10 @@ object BufPlugin extends AutoPlugin {
       inputKey[Unit](
         "Generates all dependencies in the buf.yaml file, as defined in the buf.gen.yaml file, if you have transitive dependencies that collide in definition you will have to explicitly define them"
       )
+    
+    lazy val bufLint = inputKey[Unit](
+      "Lint the protobuf files"
+    )
 
     lazy val buf = inputKey[Unit](
       "Run Buf! This process passes commands through to the downloaded CLI tool"
@@ -100,6 +104,11 @@ object BufPlugin extends AutoPlugin {
     bufActions.value.generateDependencies(bufPath.value, true)
   }
 
+  lazy val bufLintTask =
+    Def.inputTask {
+      bufActions.value.lint(bufPath.value)
+    }
+
   lazy val runBuf =
     Def.inputTask {
       val userInput: Seq[String] = Def.spaceDelimited("<arg>").parsed
@@ -138,6 +147,10 @@ object BufPlugin extends AutoPlugin {
         generateBufWithImportsTask
           .dependsOn(bufDownload)
           .dependsOn(downloadBufSetting)
-          .evaluated
+          .evaluated,
+      bufLint := bufLintTask
+      .dependsOn(bufDownloadGen)
+      .dependsOn(downloadBufSetting)
+      .evaluated,
     )
 }

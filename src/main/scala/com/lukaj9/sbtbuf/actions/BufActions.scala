@@ -25,6 +25,8 @@ trait BufActions {
       includeImports: Boolean
   ): Int
 
+  def lint(workspaceDir: Path): Int
+
 }
 
 object BufActions {
@@ -114,6 +116,33 @@ object BufActions {
           1
         }
       }
+
+      override def lint(workspaceDir: Path): Int = {
+        val bufPath = workspaceDir.resolve(bufFileName)
+        val workspacePath = workspaceDir.resolve(bufWorkspaceFileName)
+
+        val bufFile = if(Files.exists(bufPath)) {
+          Some(bufPath.toFile())
+        } else if(Files.exists(workspacePath)){
+          Some(workspacePath.toFile())
+        } else {
+          None
+        }
+
+        bufFile match {
+          case None => 
+            logger.error("No buf or workspace file found in the directory")
+            1
+          case Some(value) =>
+            executeBufCommand(
+              List(
+                "lint",
+              ),
+              Some(value.getParentFile())
+            )
+        }
+      }
+
 
       override def generate(workspaceDir: Path): Int = {
         val bufPath = workspaceDir.resolve(bufFileName)
