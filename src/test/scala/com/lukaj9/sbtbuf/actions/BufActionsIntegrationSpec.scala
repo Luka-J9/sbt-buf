@@ -249,6 +249,18 @@ class BufActionsIntegrationSpec extends FunSuite {
     assertEquals(exitCode, 0)
   }
 
+  test("BufActions should pass on good directories") {
+    val testDir = sampleDir.resolve("good-linting")
+    val bufActionResult = bufAction.lint(testDir)
+    assertEquals(bufActionResult, 0)
+  }
+
+  test("BufActions should fail on bad directories") {
+    val testDir = sampleDir.resolve("bad-linting")
+    val bufActionResult = bufAction.lint(testDir)
+    assertEquals(bufActionResult, 100)
+  }
+
   // Shamlessly copied from https://www.baeldung.com/scala/delete-directories-recursively
   private def deleteNio(root: Path): Unit = {
     val _ = Files.walkFileTree(
