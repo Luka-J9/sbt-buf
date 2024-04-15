@@ -261,6 +261,25 @@ class BufActionsIntegrationSpec extends FunSuite {
     assertEquals(bufActionResult, 100)
   }
 
+  test("BufActions should fail on breaking changes") {
+    val testDir = sampleDir.resolve("breaking-change-detection/incompatible")
+    val bufActionResult = bufAction.breaking(
+      testDir,
+      BreakingCommand(AgainstBreaking("../initial"))
+    )
+    assertEquals(bufActionResult, 100)
+  }
+
+
+  test("BufActions should pass on breaking changes") {
+    val testDir = sampleDir.resolve("breaking-change-detection/compatible")
+    val bufActionResult = bufAction.breaking(
+      testDir,
+      BreakingCommand(AgainstBreaking("../initial"))
+    )
+    assertEquals(bufActionResult, 0)
+  }
+
   // Shamlessly copied from https://www.baeldung.com/scala/delete-directories-recursively
   private def deleteNio(root: Path): Unit = {
     val _ = Files.walkFileTree(
