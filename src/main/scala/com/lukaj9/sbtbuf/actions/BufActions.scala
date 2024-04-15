@@ -14,6 +14,7 @@ import sys.process.Process
 import com.lukaj9.sbtbuf.platform.FileHasher
 import scala.util._
 import scala.sys.process.ProcessLogger
+import com.lukaj9.sbtbuf.models.BreakingCommand
 
 trait BufActions {
   def executeBufCommand(args: Seq[String], directory: Option[File]): Int
@@ -26,6 +27,8 @@ trait BufActions {
   ): Int
 
   def lint(workspaceDir: Path): Int
+
+  def breaking(workspaceDir: Path, command: BreakingCommand): Int
 
 }
 
@@ -117,32 +120,64 @@ object BufActions {
         }
       }
 
-      override def lint(workspaceDir: Path): Int = {
+      override def breaking(
+          workspaceDir: Path,
+          command: BreakingCommand
+      ): Int = {
         val bufPath = workspaceDir.resolve(bufFileName)
         val workspacePath = workspaceDir.resolve(bufWorkspaceFileName)
 
-        val bufFile = if(Files.exists(bufPath)) {
+        val bufFile = if (Files.exists(bufPath)) {
           Some(bufPath.toFile())
-        } else if(Files.exists(workspacePath)){
+        } else if (Files.exists(workspacePath)) {
           Some(workspacePath.toFile())
         } else {
           None
         }
 
         bufFile match {
-          case None => 
+          case None =>
             logger.error("No buf or workspace file found in the directory")
             1
           case Some(value) =>
             executeBufCommand(
               List(
-                "lint",
+                "breaking",
+                ".",
+                "--against",
+                command.agaisnt.value
+              ),
+              Some(value.getParentFile())
+            )
+        }
+
+      }
+
+      override def lint(workspaceDir: Path): Int = {
+        val bufPath = workspaceDir.resolve(bufFileName)
+        val workspacePath = workspaceDir.resolve(bufWorkspaceFileName)
+
+        val bufFile = if (Files.exists(bufPath)) {
+          Some(bufPath.toFile())
+        } else if (Files.exists(workspacePath)) {
+          Some(workspacePath.toFile())
+        } else {
+          None
+        }
+
+        bufFile match {
+          case None =>
+            logger.error("No buf or workspace file found in the directory")
+            1
+          case Some(value) =>
+            executeBufCommand(
+              List(
+                "lint"
               ),
               Some(value.getParentFile())
             )
         }
       }
-
 
       override def generate(workspaceDir: Path): Int = {
         val bufPath = workspaceDir.resolve(bufFileName)

@@ -114,6 +114,9 @@ This setting allows you to define where your `buf.yaml` or `buf.work.yaml` file 
 
 *Note*: It is highly recommended that this is set relative to your `baseDirectory`, this is due to the fact that Buf functions off of relative paths and recursively finds protofiles when doing things like code generation. This will likely be more strictly enforced in future versions of the plugin. Additionally it is worth noting that while buf doesn't take issue with having a buf file and a workspace file in the same directory, this plugin will explicitly error out in these cases. This due to some book keeping needed for code generation, as well as keeping the configurations for this plugin simple. 
 
+### `bufBreakingCommand` setting
+This setting allows you to define the configuration of how to evaluate breaking changes. Since this is dependent on the user there is no default for this value.
+
 ### `buf` task
 This is the escape hatch - if there are ease of use functionality missing with this plugin you can leverage this to execute any arbitrary buf command in SBT. Arguments after `buf` are passed to the CLI tool as is. You really shouldn't need to rely on this, so if you are finding yourself needing to use this please raise an issue with your use case!
 
@@ -138,6 +141,12 @@ Downloads the Buf Cli Tool given the settings above. You really shouldn't need t
 
 ### `bufDownloadGen` task
 Downloads the Protoc Plugins used for code generation if they exist
+
+### `bufLint` task
+Runs Buf Lint of the directory - return 100 if the lint is unsucceful
+
+### `bufBreaking` task
+Runs Buf Breaking for the directory using the values configured in the `bufBreakingCommand` - will return 100 if the changes are deemed incompatible
 
 
 ### Testing

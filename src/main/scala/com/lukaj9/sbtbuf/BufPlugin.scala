@@ -8,6 +8,7 @@ import com.lukaj9.sbtbuf.actions.BaseDirectory
 import com.lukaj9.sbtbuf.platform.ProtocPlugin
 import com.lukaj9.sbtbuf.platform.FileHasher
 import scala.annotation.nowarn
+import com.lukaj9.sbtbuf.models.BreakingCommand
 
 object BufPlugin extends AutoPlugin {
 
@@ -41,7 +42,7 @@ object BufPlugin extends AutoPlugin {
       inputKey[Unit](
         "Generates all dependencies in the buf.yaml file, as defined in the buf.gen.yaml file, if you have transitive dependencies that collide in definition you will have to explicitly define them"
       )
-    
+
     lazy val bufLint = inputKey[Unit](
       "Lint the protobuf files"
     )
@@ -56,6 +57,14 @@ object BufPlugin extends AutoPlugin {
 
     lazy val bufPath = settingKey[java.nio.file.Path](
       "The base path containing the buf or buf workspace file"
+    )
+
+    lazy val bufBreakingCommand = settingKey[BreakingCommand](
+      "Configuration for the breaking command, there are no defaults as the methodology is up to the user"
+    )
+
+    lazy val bufBreaking = inputKey[Unit](
+      "Check for breaking changes in the protobuf files"
     )
 
   }
@@ -112,13 +121,20 @@ object BufPlugin extends AutoPlugin {
   lazy val runBuf =
     Def.inputTask {
       val userInput: Seq[String] = Def.spaceDelimited("<arg>").parsed
-      bufActions.value.executeBufCommand(userInput, Some(bufPath.value.toAbsolutePath().toFile()))
+      bufActions.value.executeBufCommand(
+        userInput,
+        Some(bufPath.value.toAbsolutePath().toFile())
+      )
     }
 
   lazy val bufGen =
     Def.inputTask {
       bufActions.value.generate(bufPath.value)
     }
+
+  lazy val bufBreakingTask = Def.inputTask {
+    bufActions.value.breaking(bufPath.value, bufBreakingCommand.value)
+  }
 
   @nowarn() // For some reason `buf` thinks it's discarding a non unit value
   override def projectSettings =
@@ -149,8 +165,12 @@ object BufPlugin extends AutoPlugin {
           .dependsOn(downloadBufSetting)
           .evaluated,
       bufLint := bufLintTask
-      .dependsOn(bufDownloadGen)
-      .dependsOn(downloadBufSetting)
-      .evaluated,
+        .dependsOn(bufDownloadGen)
+        .dependsOn(downloadBufSetting)
+        .evaluated,
+      bufBreaking := bufBreakingTask
+        .dependsOn(bufDownloadGen)
+        .dependsOn(downloadBufSetting)
+        .evaluated
     )
 }
