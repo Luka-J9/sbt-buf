@@ -44,7 +44,10 @@ class BufActionsIntegrationSpec extends FunSuite {
 
   val bufAction = BufActions(BaseDirectory(sampleDir), staticHasher, false)
 
-  def bootrapAndCleanup(directory: BaseDirectory, inputs: List[ExternalGeneration] = List.empty)(
+  def bootrapAndCleanup(
+      directory: BaseDirectory,
+      inputs: List[ExternalGeneration] = List.empty
+  )(
       fn: Try[Int] => Unit
   ) = {
     try {
@@ -111,7 +114,8 @@ class BufActionsIntegrationSpec extends FunSuite {
     val expectedHash =
       """|buf.yaml
          |buf.gen.yaml
-         |petstore.proto""".stripMargin.getBytes(StandardCharsets.UTF_8)
+         |petstore.proto
+         |""".stripMargin.getBytes(StandardCharsets.UTF_8)
 
     val dir = sampleDir.resolve("good_cases/with_hashfile")
 
@@ -150,7 +154,8 @@ class BufActionsIntegrationSpec extends FunSuite {
       val expectedHash =
         """|buf.yaml
            |buf.gen.yaml
-           |petstore.proto""".stripMargin
+           |petstore.proto
+           |""".stripMargin
 
       assert(
         sampleDir.resolve("good_cases/happy_path/target").toFile().exists()
@@ -194,13 +199,14 @@ class BufActionsIntegrationSpec extends FunSuite {
   test(
     "should generate code and hashfile of remote dependency"
   ) {
+    val externalGeneration = ExternalGeneration(
+      "https://github.com/protocolbuffers/protobuf.git#tag=v26.1",
+      Some("src/google/protobuf/timestamp.proto")
+    )
     bootrapAndCleanup(
       BaseDirectory(sampleDir.resolve("good_cases/happy_path_git")),
       List(
-        ExternalGeneration(
-          "https://github.com/protocolbuffers/protobuf.git#tag=v26.1",
-          Some("src/google/protobuf/timestamp.proto")
-        )
+        externalGeneration
       )
     ) { result =>
       assertEquals(
@@ -217,7 +223,12 @@ class BufActionsIntegrationSpec extends FunSuite {
         new String(
           Files.readAllBytes(sampleDir.resolve("sbt-buf-hashing.txt"))
         ),
-        List("buf.yaml", "buf.gen.yaml", "petstore.proto").mkString(
+        List(
+          "buf.yaml",
+          "buf.gen.yaml",
+          "petstore.proto",
+          externalGeneration.toString()
+        ).mkString(
           "\n"
         )
       )
@@ -241,7 +252,7 @@ class BufActionsIntegrationSpec extends FunSuite {
         new String(
           Files.readAllBytes(sampleDir.resolve("sbt-buf-hashing.txt"))
         ),
-        List("buf.yaml", "buf.gen.yaml", "petstore.proto").mkString("\n")
+        List("buf.yaml", "buf.gen.yaml", "petstore.proto").mkString("\n") + "\n"
       )
 
     }
@@ -302,7 +313,6 @@ class BufActionsIntegrationSpec extends FunSuite {
     )
     assertEquals(bufActionResult, 100)
   }
-
 
   test("BufActions should pass on breaking changes") {
     val testDir = sampleDir.resolve("breaking-change-detection/compatible")

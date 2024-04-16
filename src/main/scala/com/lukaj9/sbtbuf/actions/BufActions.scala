@@ -180,7 +180,10 @@ object BufActions {
         }
       }
 
-      override def generate(workspaceDir: Path, inputs: List[ExternalGeneration]): Int = {
+      override def generate(
+          workspaceDir: Path,
+          inputs: List[ExternalGeneration]
+      ): Int = {
         val bufPath = workspaceDir.resolve(bufFileName)
         val isBuf = Files.exists(bufPath)
         val bufWorkspacePath = workspaceDir.resolve(bufWorkspaceFileName)
@@ -228,17 +231,21 @@ object BufActions {
           logger.info(
             s"Generating at directory ${workspaceDir.toAbsolutePath.toString()}"
           )
-          val externalInputs = inputs.map{ element =>
-            (executeBufCommand(
-              List(
-                "generate",
-                "--template",
-                s"${workspaceDir.toAbsolutePath().toString()}/buf.gen.yaml",
-                element.location,
-              ) ++ element.path.map(p => List("--path", p)).getOrElse(List.empty),
-              Some(workspaceDir.toAbsolutePath().toFile()
-              )
-            ), element)
+          val externalInputs = inputs.map { element =>
+            (
+              executeBufCommand(
+                List(
+                  "generate",
+                  "--template",
+                  s"${workspaceDir.toAbsolutePath().toString()}/buf.gen.yaml",
+                  element.location
+                ) ++ element.path
+                  .map(p => List("--path", p))
+                  .getOrElse(List.empty),
+                Some(workspaceDir.toAbsolutePath().toFile())
+              ),
+              element
+            )
           }
           externalInputs.collect({
             case (x, element) if (x != 0) =>
@@ -285,7 +292,8 @@ object BufActions {
             val bufGenHash = Try(
               buf.originalFile.toPath.getParent.resolve(bufGenFileName).toFile()
             ).map(fileHasher.calculate(_)).getOrElse("")
-            s"${fileHasher.calculate(buf.originalFile)}\n${bufGenHash}\n${fileHasher.hashSet(protofiles)}"
+            s"${fileHasher.calculate(buf.originalFile)}\n${bufGenHash}\n${fileHasher
+                .hashSet(protofiles)}\n${inputs.map(_.toString()).mkString("\n")}"
           case Right(bufWorkspace) =>
             val alldir = bufWorkspace.directories
               .map(rp => workspaceDir.resolve(rp.path))
@@ -320,7 +328,7 @@ object BufActions {
               }
               .mkString("\n")
 
-            s"${bufWorkspace.hashCode.toString}\n${alldir}\n${inputs.mkString("\n")}"
+            s"${bufWorkspace.hashCode.toString}\n${alldir}\n${inputs.map(_.toString()).mkString("\n")}"
 
         }
       }
