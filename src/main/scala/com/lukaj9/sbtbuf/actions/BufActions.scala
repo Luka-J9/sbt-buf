@@ -15,11 +15,12 @@ import com.lukaj9.sbtbuf.platform.FileHasher
 import scala.util._
 import scala.sys.process.ProcessLogger
 import com.lukaj9.sbtbuf.models.BreakingCommand
+import com.lukaj9.sbtbuf.models.ExternalGeneration
 
 trait BufActions {
   def executeBufCommand(args: Seq[String], directory: Option[File]): Int
 
-  def generate(workspaceDir: Path): Int
+  def generate(workspaceDir: Path, inputs: List[ExternalGeneration]): Int
 
   def generateDependencies(
       workspaceDir: Path,
@@ -179,7 +180,7 @@ object BufActions {
         }
       }
 
-      override def generate(workspaceDir: Path): Int = {
+      override def generate(workspaceDir: Path, inputs: List[ExternalGeneration]): Int = {
         val bufPath = workspaceDir.resolve(bufFileName)
         val isBuf = Files.exists(bufPath)
         val bufWorkspacePath = workspaceDir.resolve(bufWorkspaceFileName)
@@ -203,17 +204,18 @@ object BufActions {
           Right(BufWorkspace.fromFile(bufWorkspacePath.toFile()).get)
         }
 
-        generateInternal(workspaceDir, result)
+        generateInternal(workspaceDir, result, inputs)
       }
 
       private def generateInternal(
           workspaceDir: Path,
-          workspace: Either[Buf, BufWorkspace]
+          workspace: Either[Buf, BufWorkspace],
+          inputs: List[ExternalGeneration]
       ): Int = {
         val path = baseDir.value.resolve(hashFile)
         lazy val existing =
           new String(Files.readAllBytes(path), StandardCharsets.UTF_8)
-        lazy val hash = generateHash(workspaceDir, workspace)
+        lazy val hash = generateHash(workspaceDir, workspace, inputs)
 
         if (
           Files.exists(path) && Files.isRegularFile(path) && existing == hash
@@ -226,6 +228,23 @@ object BufActions {
           logger.info(
             s"Generating at directory ${workspaceDir.toAbsolutePath.toString()}"
           )
+          val externalInputs = inputs.map{ element =>
+            (executeBufCommand(
+              List(
+                "generate",
+                "--template",
+                s"${workspaceDir.toAbsolutePath().toString()}/buf.gen.yaml",
+                element.location,
+              ) ++ element.path.map(p => List("--path", p)).getOrElse(List.empty),
+              Some(workspaceDir.toAbsolutePath().toFile()
+              )
+            ), element)
+          }
+          externalInputs.collect({
+            case (x, element) if (x != 0) =>
+              logger.error(s"Failed to generate for `${element}`")
+          })
+
           val exitCode = executeBufCommand(
             List(
               "generate",
@@ -234,7 +253,7 @@ object BufActions {
             ),
             Some(workspaceDir.toAbsolutePath().toFile())
           )
-          if (exitCode == 0) {
+          if (exitCode == 0 && externalInputs.forall(_._1 == 0)) {
             val _ = Files.write(path, hash.getBytes())
           }
           exitCode
@@ -243,7 +262,8 @@ object BufActions {
 
       private def generateHash(
           workspaceDir: Path,
-          workspace: Either[Buf, BufWorkspace]
+          workspace: Either[Buf, BufWorkspace],
+          inputs: List[ExternalGeneration]
       ): String = {
         workspace match {
           case Left(buf) =>
@@ -286,7 +306,8 @@ object BufActions {
 
                   generateHash(
                     workspaceDir = wp,
-                    workspace = Left(buf)
+                    workspace = Left(buf),
+                    inputs = inputs
                   )
                 } else {
                   fileHasher.hashSet(
@@ -299,7 +320,7 @@ object BufActions {
               }
               .mkString("\n")
 
-            s"${bufWorkspace.hashCode.toString}\n${alldir}"
+            s"${bufWorkspace.hashCode.toString}\n${alldir}\n${inputs.mkString("\n")}"
 
         }
       }

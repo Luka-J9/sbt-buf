@@ -9,6 +9,7 @@ import com.lukaj9.sbtbuf.platform.ProtocPlugin
 import com.lukaj9.sbtbuf.platform.FileHasher
 import scala.annotation.nowarn
 import com.lukaj9.sbtbuf.models.BreakingCommand
+import com.lukaj9.sbtbuf.models.ExternalGeneration
 
 object BufPlugin extends AutoPlugin {
 
@@ -24,6 +25,10 @@ object BufPlugin extends AutoPlugin {
 
     lazy val protocPlugins = settingKey[Seq[ProtocPlugin]](
       "If the buf files define a local plugin these are the paths to download the artifacts"
+    )
+
+    lazy val externalGeneration = settingKey[List[ExternalGeneration]](
+      "List of external dependencies to download for generation, using the buf.gen.yaml file defined for the project. See https://buf.build/docs/reference/cli/buf/generate#description"
     )
 
     lazy val bufDownload = taskKey[Unit]("Download Buf Cli Tool")
@@ -129,7 +134,7 @@ object BufPlugin extends AutoPlugin {
 
   lazy val bufGen =
     Def.inputTask {
-      bufActions.value.generate(bufPath.value)
+      bufActions.value.generate(bufPath.value, externalGeneration.value)
     }
 
   lazy val bufBreakingTask = Def.inputTask {
@@ -143,6 +148,7 @@ object BufPlugin extends AutoPlugin {
       bufOverride := None,
       bufDownload := downloadBufSetting.value,
       bufDownloadGen := downloadProtocPlugins.value,
+      externalGeneration := List.empty,
       buf := runBuf
         .dependsOn(bufDownloadGen)
         .dependsOn(downloadBufSetting)

@@ -44,11 +44,11 @@ class BufActionsIntegrationSpec extends FunSuite {
 
   val bufAction = BufActions(BaseDirectory(sampleDir), staticHasher, false)
 
-  def bootrapAndCleanup(directory: BaseDirectory)(
+  def bootrapAndCleanup(directory: BaseDirectory, inputs: List[ExternalGeneration] = List.empty)(
       fn: Try[Int] => Unit
   ) = {
     try {
-      fn(Try(bufAction.generate(directory.value)))
+      fn(Try(bufAction.generate(directory.value, inputs)))
     } finally {
       val targetDir = directory.value.resolve("target")
       if (targetDir.toFile().exists()) {
@@ -192,6 +192,39 @@ class BufActionsIntegrationSpec extends FunSuite {
   }
 
   test(
+    "should generate code and hashfile of remote dependency"
+  ) {
+    bootrapAndCleanup(
+      BaseDirectory(sampleDir.resolve("good_cases/happy_path_git")),
+      List(
+        ExternalGeneration(
+          "https://github.com/protocolbuffers/protobuf.git#tag=v26.1",
+          Some("src/google/protobuf/timestamp.proto")
+        )
+      )
+    ) { result =>
+      assertEquals(
+        result,
+        Success(0)
+      )
+      assert(
+        sampleDir
+          .resolve("good_cases/happy_path_git/target")
+          .toFile()
+          .exists()
+      )
+      assertEquals(
+        new String(
+          Files.readAllBytes(sampleDir.resolve("sbt-buf-hashing.txt"))
+        ),
+        List("buf.yaml", "buf.gen.yaml", "petstore.proto").mkString(
+          "\n"
+        )
+      )
+    }
+  }
+
+  test(
     "should exclude the directories in the buf files are configured to ignore"
   ) {
     val testDir = sampleDir.resolve("good_cases/exclude_dir")
@@ -230,7 +263,7 @@ class BufActionsIntegrationSpec extends FunSuite {
             List(RelativePath.apply(pathString = "petapis").get)
           ).hashCode(),
           "petstore.proto"
-        ).mkString("\n")
+        ).mkString("\n") + "\n"
       )
       assertEquals(
         result,
