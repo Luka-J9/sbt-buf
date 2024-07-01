@@ -146,7 +146,7 @@ object BufActions {
                 "breaking",
                 ".",
                 "--against",
-                command.agaisnt.value
+                command.against.value
               ),
               Some(value.getParentFile())
             )
@@ -328,7 +328,13 @@ object BufActions {
               }
               .mkString("\n")
 
-            s"${bufWorkspace.hashCode.toString}\n${alldir}\n${inputs.map(_.toString()).mkString("\n")}"
+            val bufGenHash = Try(
+              workspaceDir.resolve(bufGenFileName).toFile()
+            ).map(fileHasher.calculate(_)).getOrElse("")
+
+            s"${fileHasher.calculate(
+                bufWorkspace.originalFile
+              )}\n$bufGenHash\n${alldir}\n${inputs.map(_.toString()).mkString("\n")}"
 
         }
       }
