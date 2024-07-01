@@ -271,7 +271,8 @@ class BufActionsIntegrationSpec extends FunSuite {
         List(
           BufWorkspace(
             Version("v1"),
-            List(RelativePath.apply(pathString = "petapis").get)
+            List(RelativePath.apply(pathString = "petapis").get),
+            testDir.resolve("buf.work.yaml").toFile()
           ).hashCode(),
           "petstore.proto"
         ).mkString("\n") + "\n"

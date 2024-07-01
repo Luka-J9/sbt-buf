@@ -33,11 +33,6 @@ sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 
 console / initialCommands := """import com.lukaj9.sbtbuf._"""
 
-enablePlugins(ScriptedPlugin)
-// set up 'scripted; sbt plugin for testing sbt plugins
-scriptedLaunchOpts ++=
-  Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
-
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches :=
   Seq(
