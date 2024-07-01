@@ -48,6 +48,8 @@ Using Buf (even without BSR), you are no longer tied to protobuf files needing t
 
 ## Usage
 
+See example project [here](https://github.com/Luka-J9/sbt-buf-example/)
+
 ### Applying the plugin in your build.sbt
 ```scala
 enablePlugins(BufPlugin)
