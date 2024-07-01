@@ -1,7 +1,7 @@
 package com.lukaj9.sbtbuf.models
 
 case class BreakingCommand(
-    agaisnt: AgainstBreaking
+    against: AgainstBreaking
 )
 
 case class AgainstBreaking(

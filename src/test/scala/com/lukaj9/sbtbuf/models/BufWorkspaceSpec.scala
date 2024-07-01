@@ -8,6 +8,9 @@ import java.io.File
 
 class BufWorkspaceSpec extends FunSuite {
 
+  private val file = new File("") // Dummy file
+  private implicit val decoder = BufWorkspace.decoder(file)
+
   test("should decode a buf workspace (all inclusive)") {
     parser
       .parse("""
@@ -26,7 +29,8 @@ class BufWorkspaceSpec extends FunSuite {
             directories = List(
               RelativePath(pathString = "proto").get,
               RelativePath(pathString = "api").get
-            )
+            ),
+            originalFile = file
           )
         )
       case Failure(e) => fail("Failed to decode", e)
@@ -80,7 +84,8 @@ class BufWorkspaceSpec extends FunSuite {
             directories = List(
               RelativePath(pathString = "paymentapis").get,
               RelativePath(pathString = "petapis").get
-            )
+            ),
+            originalFile = file
           )
         )
       case Failure(e) => fail("Failed to decode", e)

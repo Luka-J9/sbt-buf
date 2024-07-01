@@ -64,9 +64,10 @@ object BufPlugin extends AutoPlugin {
       "The base path containing the buf or buf workspace file"
     )
 
-    lazy val bufBreakingCommand = settingKey[BreakingCommand](
-      "Configuration for the breaking command, there are no defaults as the methodology is up to the user"
-    )
+    lazy val bufBreakingCommand =
+      settingKey[Option[BreakingCommand]]( // Make optional of bufPath
+        "Configuration for the breaking command, there are no defaults as the methodology is up to the user"
+      )
 
     lazy val bufBreaking = inputKey[Unit](
       "Check for breaking changes in the protobuf files"
@@ -138,7 +139,14 @@ object BufPlugin extends AutoPlugin {
     }
 
   lazy val bufBreakingTask = Def.inputTask {
-    bufActions.value.breaking(bufPath.value, bufBreakingCommand.value)
+    bufBreakingCommand.value match {
+      case None =>
+        streams.value.log.warn(
+          "bufBreakingCommand is not set - this action is a no-op"
+        )
+      case Some(command) => bufActions.value.breaking(bufPath.value, command)
+    }
+
   }
 
   @nowarn() // For some reason `buf` thinks it's discarding a non unit value
@@ -149,6 +157,7 @@ object BufPlugin extends AutoPlugin {
       bufDownload := downloadBufSetting.value,
       bufDownloadGen := downloadProtocPlugins.value,
       externalGeneration := List.empty,
+      bufBreakingCommand := None,
       buf := runBuf
         .dependsOn(bufDownloadGen)
         .dependsOn(downloadBufSetting)
