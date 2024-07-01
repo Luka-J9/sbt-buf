@@ -269,11 +269,8 @@ class BufActionsIntegrationSpec extends FunSuite {
           Files.readAllBytes(sampleDir.resolve("sbt-buf-hashing.txt"))
         ),
         List(
-          BufWorkspace(
-            Version("v1"),
-            List(RelativePath.apply(pathString = "petapis").get),
-            testDir.resolve("buf.work.yaml").toFile()
-          ).hashCode(),
+          "buf.work.yaml",
+          "buf.gen.yaml",
           "petstore.proto"
         ).mkString("\n") + "\n"
       )
