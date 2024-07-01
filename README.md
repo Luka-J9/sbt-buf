@@ -50,7 +50,7 @@ Using Buf (even without BSR), you are no longer tied to protobuf files needing t
 
 ### Applying the plugin in your build.sbt
 ```scala
-enablePlugins(com.lukaj9.sbtbuf.BufPlugin)
+enablePlugins(BufPlugin)
 ```
 
 This will give you an "out of the box" setup, if you wish to customize your behavior the following setting are available.
