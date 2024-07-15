@@ -4,11 +4,24 @@ scalaVersion := "2.12.17"
 
 sbtPlugin := true
 
-libraryDependencies ++= Seq(
-  "io.circe" %% "circe-yaml" % "0.14.2",
-  "org.scalameta" %% "munit" % "0.7.29" % Test,
-  "org.scalameta" %% "munit-scalacheck" % "0.7.29" % Test
-)
+lazy val root = (project in file("."))
+  .aggregate(
+    core,
+    sbtBuf
+  )
+
+lazy val core = (project in file("core"))
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.circe" %% "circe-yaml" % "0.14.2",
+      "org.scalameta" %% "munit" % "0.7.29" % Test,
+      "org.scalameta" %% "munit-scalacheck" % "0.7.29" % Test
+    )
+  )
+
+lazy val sbtBuf = (project in file("sbt-buf"))
+  .settings(sbtPlugin := true)
+  .dependsOn(core)
 
 inThisBuild(
   List(
