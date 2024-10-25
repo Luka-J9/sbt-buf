@@ -60,4 +60,29 @@ ThisBuild / githubWorkflowOSes := Seq(
   "windows-latest"
 )
 
+ThisBuild / githubWorkflowGeneratedUploadSteps := {
+  (ThisBuild / githubWorkflowGeneratedUploadSteps).value.map {
+    case workflow: WorkflowStep.Use =>
+      workflow.ref match {
+        case p: UseRef.Public =>
+          if (p.owner == "actions" && p.repo == "upload-artifact") workflow.copy(ref = p.copy(ref = "v3"))
+          else workflow
+        case _ => workflow
+      }
+    case w => w
+  }
+}
+ThisBuild / githubWorkflowGeneratedDownloadSteps := {
+  (ThisBuild / githubWorkflowGeneratedDownloadSteps).value.map {
+    case workflow: WorkflowStep.Use =>
+      workflow.ref match {
+        case p: UseRef.Public =>
+          if (p.owner == "actions" && p.repo == "download-artifact") workflow.copy(ref = p.copy(ref = "v3"))
+          else workflow
+        case _ => workflow
+      }
+    case w => w
+  }
+}
+
 Test / parallelExecution := false
