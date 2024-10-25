@@ -112,30 +112,30 @@ object BufPlugin extends AutoPlugin {
     }
 
   lazy val generateBufDependenciesTask = Def.inputTask {
-    bufActions.value.generateDependencies(bufPath.value, false)
+    throwOnNonZero(bufActions.value.generateDependencies(bufPath.value, false))
   }
 
   lazy val generateBufWithImportsTask = Def.inputTask {
-    bufActions.value.generateDependencies(bufPath.value, true)
+    throwOnNonZero(bufActions.value.generateDependencies(bufPath.value, true))
   }
 
   lazy val bufLintTask =
     Def.inputTask {
-      bufActions.value.lint(bufPath.value)
+      throwOnNonZero(bufActions.value.lint(bufPath.value))
     }
 
   lazy val runBuf =
     Def.inputTask {
       val userInput: Seq[String] = Def.spaceDelimited("<arg>").parsed
-      bufActions.value.executeBufCommand(
+      throwOnNonZero(bufActions.value.executeBufCommand(
         userInput,
         Some(bufPath.value.toAbsolutePath().toFile())
-      )
+      ))
     }
 
   lazy val bufGen =
     Def.inputTask {
-      bufActions.value.generate(bufPath.value, externalGeneration.value)
+      throwOnNonZero(bufActions.value.generate(bufPath.value, externalGeneration.value))
     }
 
   lazy val bufBreakingTask = Def.inputTask {
@@ -144,10 +144,14 @@ object BufPlugin extends AutoPlugin {
         streams.value.log.warn(
           "bufBreakingCommand is not set - this action is a no-op"
         )
-      case Some(command) => bufActions.value.breaking(bufPath.value, command)
+      case Some(command) => throwOnNonZero(bufActions.value.breaking(bufPath.value, command))
     }
 
   }
+
+  private def throwOnNonZero(result: Int): Unit = if(result != 0) throw new NonZeroReturn(s"Executed command returned a non zero response `$result`")
+
+  private class NonZeroReturn(message: String) extends Exception(message)
 
   @nowarn() // For some reason `buf` thinks it's discarding a non unit value
   override def projectSettings =

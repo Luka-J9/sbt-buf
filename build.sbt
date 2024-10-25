@@ -1,6 +1,6 @@
 name := """sbt-buf"""
 organization := "com.lukaj9"
-scalaVersion := "2.12.17"
+scalaVersion := "2.12.20"
 
 sbtPlugin := true
 
