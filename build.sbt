@@ -60,6 +60,7 @@ ThisBuild / githubWorkflowOSes := Seq(
   "windows-latest"
 )
 
+//see https://github.com/sbt/sbt-github-actions/issues/178
 ThisBuild / githubWorkflowGeneratedUploadSteps := {
   (ThisBuild / githubWorkflowGeneratedUploadSteps).value.map {
     case workflow: WorkflowStep.Use =>
