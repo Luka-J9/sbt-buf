@@ -1,6 +1,6 @@
 name := """sbt-buf"""
 organization := "com.lukaj9"
-scalaVersion := "2.12.17"
+scalaVersion := "2.12.20"
 
 sbtPlugin := true
 
@@ -59,5 +59,31 @@ ThisBuild / githubWorkflowOSes := Seq(
   "macos-latest",
   "windows-latest"
 )
+
+//see https://github.com/sbt/sbt-github-actions/issues/178
+ThisBuild / githubWorkflowGeneratedUploadSteps := {
+  (ThisBuild / githubWorkflowGeneratedUploadSteps).value.map {
+    case workflow: WorkflowStep.Use =>
+      workflow.ref match {
+        case p: UseRef.Public =>
+          if (p.owner == "actions" && p.repo == "upload-artifact") workflow.copy(ref = p.copy(ref = "v3"))
+          else workflow
+        case _ => workflow
+      }
+    case w => w
+  }
+}
+ThisBuild / githubWorkflowGeneratedDownloadSteps := {
+  (ThisBuild / githubWorkflowGeneratedDownloadSteps).value.map {
+    case workflow: WorkflowStep.Use =>
+      workflow.ref match {
+        case p: UseRef.Public =>
+          if (p.owner == "actions" && p.repo == "download-artifact") workflow.copy(ref = p.copy(ref = "v3"))
+          else workflow
+        case _ => workflow
+      }
+    case w => w
+  }
+}
 
 Test / parallelExecution := false
